@@ -1,0 +1,4 @@
+trading_policy:
+  entry_window_start: "09:00"
+  entry_window_end: "11:00"
+  force_close_time: "15:15"
