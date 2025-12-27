@@ -15,16 +15,18 @@ approved through a formal phase change.
 
 ## Top-Level Project Structure
 
+```
 MIS-Trading-Strategy/
 ├── README.md
 ├── config/
-│ └── config.yaml
+│   └── config.yaml
 ├── docs/
-│ └── (process and design documentation)
+│   └── (process and design documentation)
 ├── tests/
-│ └── (unit, integration, functional, system tests)
+│   └── (unit, integration, functional, system tests)
 ├── src/
-│ └── (all application source code)
+│   └── (all application source code)
+```
 
 ### Key Rules
 - **All executable source code resides under `src/`**
@@ -33,6 +35,7 @@ MIS-Trading-Strategy/
   ```bash
   python -m src
 src/ – Application Source Tree
+```
 src/
 ├── __init__.py
 ├── __main__.py
@@ -99,6 +102,8 @@ src/
 │
 └── data/
     └── sample_prices.csv
+```
+
 Architectural Intent by Layer
 Layer	Responsibility
 app/	Application orchestration and runtime wiring
