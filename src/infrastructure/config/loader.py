@@ -1,3 +1,4 @@
+from logging import raiseExceptions
 from pathlib import Path
 from datetime import time
 import yaml
@@ -5,7 +6,7 @@ import yaml
 from infrastructure.config.schema import TradingPolicyConfig, DEFAULT_TRADING_POLICY
 from infrastructure.config.errors import ConfigError
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
 
 def _parse_time(val: str) -> time:
     try:
@@ -15,9 +16,10 @@ def _parse_time(val: str) -> time:
         raise ConfigError(f"Invalid time format (HH:MM expected): {val}")
 
 def load_trading_policy_config() -> TradingPolicyConfig:
-    cfg_path = PROJECT_ROOT / "config.yaml"
+    cfg_path = PROJECT_ROOT / "config/config.yaml"
     if not cfg_path.exists():
-        return DEFAULT_TRADING_POLICY
+        raise Exception("YAML Config Not Found: ", PROJECT_ROOT)
+        #return DEFAULT_TRADING_POLICY
 
     data = yaml.safe_load(cfg_path.read_text()) or {}
     tp = data.get("trading_policy", {})
