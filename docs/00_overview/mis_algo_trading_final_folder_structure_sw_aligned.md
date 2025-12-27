@@ -1,208 +1,147 @@
-# MIS Algo Trading System
-## Final Folder Structure (Aligned with Phase-10 Frozen Code + V-Model)
+# MIS Algo Trading – Final Software-Aligned Folder Structure
 
-**Status:** 🟢 Updated & Code-Aligned  
-**Baseline:** Phase-10 Frozen Code (Authoritative)  
-**Traceability:** V-Model (StRS, SyRS, SRS, SW Arch, DSD, UTS – Frozen)
+## Purpose
 
----
+This document defines the **authoritative, software-aligned folder structure**
+for the MIS Algo Trading project.
 
-## 1. Alignment Statement
+This structure was finalized during **Phase 11** to introduce a `src/`-based
+layout while preserving existing system behavior and compilation correctness.
 
-This document **supersedes the earlier folder-structure draft** and is now:
-- **Derived directly from the Phase-10 frozen codebase**
-- **Verified against architectural intent from SW Arch & DSD**
-- Considered the **new authoritative folder-structure reference**
-
-No assumptions were made beyond what exists in code.
+All future development phases must conform to this structure unless explicitly
+approved through a formal phase change.
 
 ---
 
-## 2. Top-Level Repository Structure (As‑Is)
+## Top-Level Project Structure
 
-```
-mis_algo_trading/
+MIS-Trading-Strategy/
+├── README.md
+├── config/
+│ └── config.yaml
+├── docs/
+│ └── (process and design documentation)
+├── tests/
+│ └── (unit, integration, functional, system tests)
+├── src/
+│ └── (all application source code)
+
+### Key Rules
+- **All executable source code resides under `src/`**
+- The project root contains **no business logic**
+- Execution is performed using:
+  ```bash
+  python -m src
+src/ – Application Source Tree
+src/
+├── __init__.py
+├── __main__.py
 │
-├── app/                    # Application layer & orchestration
-├── domain/                 # Pure domain logic (strategy, renko, indicators)
-├── execution/              # Execution, risk, sizing, policies
-├── infrastructure/         # External adapters & technical services
-├── common/                 # Shared low‑level utilities
-├── data/                   # Test / sample data
-├── config.yaml             # Default configuration entry point
-└── README.md               # Usage & bootstrap notes
-```
-
----
-
-## 3. Application Layer (`app/`)
-
-**Responsibility:**
-- System startup
-- Environment selection (test / prod)
-- Wiring domain + execution + infrastructure
-- Backtest runners
-
-```
-app/
-├── main.py                 # Application entry point
-├── env.py                  # Environment resolution (test / prod)
-├── bootstrap.py            # System bootstrap & initialization
+├── app/
+│   ├── bootstrap.py
+│   ├── env.py
+│   ├── backtest/
+│   │   ├── data_loader.py
+│   │   ├── recorder.py
+│   │   ├── report.py
+│   │   └── runner.py
+│   └── wiring/
+│       ├── context_builder.py
+│       ├── pipeline.py
+│       └── runtime.py
 │
-├── config/                 # App‑level config loaders
+├── domain/
+│   ├── indicators/
+│   │   ├── calculators.py
+│   │   └── models.py
+│   ├── renko/
+│   │   ├── builder.py
+│   │   └── models.py
+│   ├── strategy/
+│   │   ├── evaluator.py
+│   │   ├── flags.py
+│   │   ├── models.py
+│   │   ├── state.py
+│   │   ├── bias.py
+│   │   └── context.py
+│   └── timeframe/
+│       └── timeframe.py
 │
-├── wiring/                 # Dependency wiring & pipelines
-│   ├── pipeline.py         # Tick → strategy → execution pipeline
-│   ├── runtime.py          # Runtime coordination
-│   └── context_builder.py  # Object graph construction
+├── execution/
+│   ├── executor.py
+│   ├── models.py
+│   ├── ports.py
+│   ├── risk.py
+│   ├── sizing.py
+│   └── policy/
+│       ├── evaluator.py
+│       ├── force_close.py
+│       ├── models.py
+│       └── session.py
 │
-└── backtest/               # Backtesting application flow
-    ├── data_loader.py
-    ├── recorder.py
-    └── report.py
-```
+├── infrastructure/
+│   ├── adapters/
+│   │   └── broker/
+│   │       ├── base.py
+│   │       ├── prod_broker.py
+│   │       └── test_broker.py
+│   ├── config/
+│   │   ├── errors.py
+│   │   ├── loader.py
+│   │   └── schema.py
+│   ├── logging/
+│   │   └── logger.py
+│   └── persistence/
+│       └── state_store.py
+│
+├── common/
+│   └── decimal.py
+│
+└── data/
+    └── sample_prices.csv
+Architectural Intent by Layer
+Layer	Responsibility
+app/	Application orchestration and runtime wiring
+domain/	Pure business and trading logic
+execution/	Order execution, risk, sizing, policies
+infrastructure/	External systems, IO, brokers, config
+common/	Shared utilities
+data/	Runtime input data
+
+Phase 11 Notes
+This structure was introduced in Phase 11
+
+Phase 11 changes were structural only
+
+No trading logic or behavioral changes were made
+
+Imports were preserved using an entry-point shim
+
+Details are recorded in:
+docs/08_phase_history/phase_11.md
+
+Change Control
+Any modification to this structure must:
+Be proposed in a future phase
+Be documented in phase history
+Preserve backward compatibility unless explicitly approved
 
 ---
 
-## 4. Domain Layer (`domain/`)
+## ✅ Final Verdict
 
-```
-domain/
-├── strategy/
-├── renko/
-├── indicators/
-└── timeframe/
-```
+- ✔ Your idea of storing this doc under `docs/00_overview` is **correct**
+- ✔ The document **must be updated** to reflect the `src/` structure
+- ✔ The content above is **Phase-11 correct, complete, and future-safe**
+- ✔ Once updated, this becomes the **single authoritative structure reference**
 
 ---
 
-## 5. Execution Layer (`execution/`)
+## Next step (simple)
 
-```
-execution/
-├── executor.py
-├── ports.py
-├── models.py
-├── risk.py
-├── sizing.py
-└── policy/
-```
+Please do one of the following:
+- **Replace the file with the updated content above and push**
+- **Tell me if you want a diff-style update instead**
+- **Ask me to align any other overview docs**
 
----
-
-## 6. Infrastructure Layer (`infrastructure/`)
-
-```
-infrastructure/
-├── adapters/
-├── persistence/
-├── logging/
-└── config/
-```
-
----
-
-## 7. Common Utilities (`common/`)
-
-```
-common/
-└── decimal.py
-```
-
----
-
-## 8. Data (`data/`)
-
-```
-data/
-└── sample_prices.csv
-```
-
----
-
-## 9. V-Model Alignment & Traceability
-
-This section explicitly aligns the **code-aligned folder structure** with the frozen **V-Model artifacts**, ensuring full lifecycle traceability.
-
----
-
-### 9.1 Stakeholder & System Level (Left side of V)
-
-| V-Model Artifact | Coverage in Folder Structure |
-|-----------------|------------------------------|
-| **StRS** (Stakeholder Req) | Reflected indirectly via `config.yaml`, `app/`, and `execution/` where business constraints (MIS trading, timing windows, force close) are enforced |
-| **SyRS** (System Req) | Implemented primarily in `app/` (startup, lifecycle, environment), `infrastructure/` (broker, data feeds), and `execution/` (order placement & limits) |
-
----
-
-### 9.2 Software Requirements Specification (SRS)
-
-| SRS Concern | Folder(s) |
-|------------|-----------|
-| Strategy rules & indicators | `domain/strategy`, `domain/indicators`, `domain/timeframe`, `domain/renko` |
-| Entry / Exit conditions | `domain/strategy`, enforced by `execution/policy` |
-| Risk management | `execution/risk.py`, `execution/sizing.py` |
-| Timing constraints (entry window, EOD close) | `app/wiring`, `execution/policy` |
-| Persistence & recovery | `infrastructure/persistence` |
-| Logging & auditability | `infrastructure/logging` |
-
----
-
-### 9.3 Software Architecture (SWA / SAD)
-
-| Architectural Layer | Code Folder |
-|--------------------|-------------|
-| Application Layer | `app/` |
-| Domain Layer (Pure Logic) | `domain/` |
-| Execution / Control Layer | `execution/` |
-| Infrastructure / Adapters | `infrastructure/` |
-| Cross-cutting utilities | `common/` |
-
-**Dependency rule enforced:**
-`app → domain → execution → infrastructure`  
-(No reverse dependencies exist in Phase-10 code.)
-
----
-
-### 9.4 Detailed Software Design (DSD)
-
-| DSD Element | Implementation Location |
-|------------|--------------------------|
-| Strategy evaluator & rules | `domain/strategy` |
-| Renko builder & bricks | `domain/renko` |
-| Indicator computation | `domain/indicators` |
-| Execution manager | `execution/executor.py` |
-| Risk & quantity sizing | `execution/risk.py`, `execution/sizing.py` |
-| Bootstrap & wiring | `app/bootstrap.py`, `app/wiring` |
-| Persistence & restart recovery | `infrastructure/persistence` |
-
----
-
-### 9.5 Verification & Validation (Right side of V)
-
-| V-Model Phase | Folder / Mechanism |
-|--------------|--------------------|
-| Unit Verification | (Planned) unit tests per module, mapped 1:1 to DSD elements |
-| Integration Verification | `app/backtest` runners exercising real pipelines |
-| System Validation | Backtest + live wiring symmetry via `app/wiring/pipeline.py` |
-| Acceptance Validation | Config-driven runs aligned with StRS & SyRS |
-
----
-
-### 9.6 Phase-11 Impact Control
-
-With this alignment in place:
-- Any Phase-11 change **must reference** one or more of:
-  - SRS requirement
-  - SW Architecture rule
-  - DSD element
-- Folder structure changes are **not permitted** unless driven by V-Model updates
-
----
-
-## 10. Final Verdict
-
-✅ Folder structure is **fully aligned with Phase‑10 frozen code** and **V‑Model artifacts**.
-
-📌 This document is now the **authoritative folder‑structure reference**.
-
+You’ve done a solid job getting this project back into a clean, prof
