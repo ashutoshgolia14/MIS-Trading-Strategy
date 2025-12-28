@@ -1,149 +1,193 @@
 
 # MIS Algo Trading System
-## System Requirements Specification (SY-RS)
-### Revision B — Corrected & Gap-Free
+## System Requirements Specification (SYRS)
+
+**Revision:** B (Merged & Renumbered)  
+**Status:** 🟢 Baselined after Phase 13.1.1 Inspection  
+**Derived From:** Stakeholder Requirements + REM  
+**Change Control:** Formal inspection only
 
 ---
 
-## 1. Introduction
+## 1. Purpose
 
-This document specifies the **System Requirements** for the MIS Algo Trading System.
-It defines **system-level behavioral constraints** derived from:
-- Stakeholder Requirements (Developer Spec, Strategy Spec)
-- REM – Consistency Addendum v3
-
-This revision incorporates all corrections approved during **Phase 13.1.1**.
+This document defines the **System Requirements** for the MIS Algo Trading System.
+It represents a **merged and gap-free System Requirements baseline**, derived from:
+- Stakeholder Requirements
+- REM Consistency Addendum
+- Phase 13.1.1 System Gap Corrections
 
 ---
 
-## 2. System Scope
+## 2. System Scope & Context
 
-The system shall implement an automated intraday MIS trading system based on Renko price action and multi-timeframe technical indicators, supporting both TEST and PROD execution modes.
+The MIS Algo Trading System is an automated **intraday MIS trading system** that:
+- Trades MIS-enabled equities via a broker
+- Uses Renko-based decision logic with multi-timeframe indicators
+- Operates in TEST and PROD execution modes
 
 ---
 
 ## 3. Execution Modes
 
-### SY-RS-01 — Execution Mode Separation
+### SYS-GEN-001 — Execution Mode Separation
 The system shall support distinct TEST and PROD execution modes.
 
 ---
 
 ## 4. Trading Session & Lifecycle
 
-### SY-RS-02 — Intraday Operation
+### SYS-SES-001 — Intraday Operation
 The system shall operate strictly within intraday trading sessions.
 
-### SY-RS-03 — Force-Close Requirement
-The system shall ensure that no open positions remain beyond the configured force-close time.
+### SYS-SES-002 — Entry Window Enforcement
+The system shall allow new trade entries only within the configured intraday entry window.
+
+### SYS-SES-003 — No Late Entries
+The system shall prevent initiation of new trades outside the defined entry window regardless of signal validity.
+
+### SYS-SES-004 — Force-Close Requirement
+The system shall forcibly close all open positions at the configured end-of-day force-close time.
 
 ---
 
-## 5. Renko Brick Lifecycle (Corrected)
+## 5. Renko Brick Lifecycle & Pricing
 
-### SY-RS-NEW-01 — Renko Brick Size Computation Cadence
-The system shall compute the Renko brick size once per trading week using the configured computation method.
+### SYS-RNK-001 — Weekly Renko Brick Size Computation
+The system shall compute the Renko brick size once per trading week.
 
-### SY-RS-NEW-02 — Renko Brick Size Immutability
-The system shall ensure that the computed Renko brick size remains unchanged throughout all trading sessions within the same trading week.
+### SYS-RNK-002 — Renko Brick Size Immutability
+The system shall apply the computed Renko brick size consistently throughout the trading week.
 
-### SY-RS-NEW-03 — Renko Brick Size Execution Scope
-The system shall apply the same Renko brick size consistently across all executions, restarts, and sessions occurring within the same trading week.
+### SYS-RNK-003 — Renko Brick Size Persistence
+The system shall preserve the weekly Renko brick size across restarts and executions within the same week.
+
+### SYS-RNK-004 — Midpoint Price Source
+The system shall construct Renko bricks using the midpoint of the best available bid and ask prices.
+
+### SYS-RNK-005 — Price Source Fallback
+In the absence of valid bid and ask prices, the system shall apply a deterministic fallback price source.
 
 ---
 
-## 6. Multi-Timeframe & Decision Semantics (Corrected)
+## 6. Decision & Multi-Timeframe Semantics
 
-### SY-RS-NEW-04A — Continuous Indicator Data Updates
+### SYS-DEC-001 — Renko-Only Decision Authority
+The system shall evaluate trade entry and exit decisions only upon completion of Renko bricks.
+
+### SYS-DEC-002 — Continuous Lower-Timeframe Updates
 The system shall update lower-timeframe indicator inputs continuously as new price data is received.
 
-### SY-RS-NEW-04B — Intrabar Indicator Computation
-The system shall compute lower-timeframe indicators without waiting for the completion of time-based candles.
+### SYS-DEC-003 — Intrabar Indicator Computation
+The system shall compute lower-timeframe indicators without waiting for candle completion.
 
-### SY-RS-NEW-05A — Renko Decision Timeframe Authority
-The system shall restrict trade entry and exit decision authority exclusively to the Renko-based decision timeframe.
-
-### SY-RS-NEW-05B — Context-Only Usage of Lower Timeframes
-The system shall not permit indicators derived from non-Renko timeframes to independently trigger trade entry or exit actions.
-
-### SY-RS-NEW-06 — Decision Evaluation Timing
-The system shall evaluate trade entry and exit decisions only upon completion of Renko price structures.
+### SYS-DEC-004 — Context-Only Lower Timeframes
+Indicators derived from non-Renko timeframes shall not independently trigger trade entries or exits.
 
 ---
 
-## 7. Pricing Semantics (Corrected)
+## 7. Trade Limits & Execution Control
 
-### SY-RS-NEW-07 — Primary Price Source Definition
-The system shall derive price inputs for Renko construction using the midpoint of the best available bid and ask prices.
-
-### SY-RS-NEW-08 — Price Source Application Scope
-The system shall apply the bid-ask midpoint price exclusively for the construction of Renko price structures used in strategy evaluation.
-
-### SY-RS-NEW-09 — Price Source Fallback Behavior
-In the absence of valid bid and ask prices, the system shall apply a defined and deterministic fallback price source as configured.
-
----
-
-## 8. Trade Limits & Session Control (Corrected)
-
-### SY-RS-NEW-10 — Trading Session Definition
-The system shall define a trading session as the configured intraday trading window bounded by session start and session end times.
-
-### SY-RS-NEW-11 — Trade Count Limit per Session
+### SYS-TRD-001 — One Trade per Instrument per Session
 The system shall permit at most one completed trade per instrument within a single trading session.
 
-### SY-RS-NEW-12 — Session Trade Limit Persistence
-The system shall enforce the per-session trade limit consistently across restarts and executions occurring within the same trading session.
+### SYS-TRD-002 — Session Trade Limit Persistence
+The system shall enforce the per-session trade limit across restarts and executions.
+
+### SYS-TRD-003 — Market Order Execution
+The system shall execute all trade entries and exits using market orders.
+
+### SYS-TRD-004 — Spread Validation
+The system shall validate market spread prior to trade execution and shall not trade when the spread exceeds the configured threshold.
+
+### SYS-TRD-005 — Partial Fill Acceptance
+The system shall accept partial order fills and shall not retry execution for the unfilled remainder.
 
 ---
 
-## 9. Safety & Failure Handling (Corrected)
+## 8. Risk & Position Management
 
-### SY-RS-NEW-13 — Critical Failure Classification
-The system shall classify failures that may impact trading safety, data integrity, or execution correctness as critical failures.
+### SYS-RSK-001 — Risk-Based Position Sizing
+The system shall compute position size based on a configured risk percentage of user-defined equity.
 
-### SY-RS-NEW-14 — Trading Halt on Critical Failure
-Upon detection of a critical failure, the system shall immediately halt all trade entry and exit actions and prevent the placement of any new orders.
+### SYS-RSK-002 — Margin Usage Limit
+The system shall enforce a maximum margin usage per trade as a percentage of total equity.
 
-### SY-RS-NEW-15 — Safe State Enforcement
-When trading is halted due to a critical failure, the system shall enter a safe state in which no automated trading actions may occur.
-
-### SY-RS-NEW-16 — Controlled Recovery Requirement
-The system shall not resume automated trading after a critical failure without an explicit recovery action.
+### SYS-RSK-003 — Fixed Daily Equity
+The system shall use a fixed equity value per trading day for all risk calculations.
 
 ---
 
-## 10. TEST Mode Determinism (Corrected)
+## 9. Safety & Failure Handling
 
-### SY-RS-NEW-17 — Deterministic Behavior in TEST Mode
-When operating in TEST mode, the system shall produce deterministic trading behavior such that identical inputs and configuration result in identical trading decisions and outcomes.
+### SYS-SAFE-001 — Critical Failure Classification
+The system shall classify failures that impact trading safety, data integrity, or execution correctness as critical failures.
 
-### SY-RS-NEW-18 — Determinism Scope Definition
-Deterministic behavior in TEST mode shall apply to strategy evaluation, order generation, and trade lifecycle management.
+### SYS-SAFE-002 — Trading Halt on Critical Failure
+Upon detection of a critical failure, the system shall immediately halt all trade entry and exit actions.
 
-### SY-RS-NEW-19 — Isolation from Non-Deterministic Influences
-In TEST mode, the system shall not depend on wall-clock time, live broker state, or non-deterministic data ordering.
+### SYS-SAFE-003 — Safe State Enforcement
+When trading is halted, the system shall enter a safe state in which no automated trading actions may occur.
 
----
-
-## 11. Session Reset Semantics (Corrected)
-
-### SY-RS-NEW-20 — Session Boundary as Reset Trigger
-The system shall treat the end of a trading session as a logical boundary at which session-scoped state transitions occur.
-
-### SY-RS-NEW-21 — Mandatory Session State Reset
-Upon crossing a trading session boundary, the system shall reset all session-scoped trading state prior to the start of the next session.
-
-### SY-RS-NEW-22 — Preservation of Non-Session State
-The system shall preserve non-session-scoped state across trading session boundaries.
-
-### SY-RS-NEW-23 — Session Reset Consistency Across Restarts
-The system shall enforce session reset and preservation semantics consistently across restarts and executions.
+### SYS-SAFE-004 — Controlled Recovery
+The system shall not resume automated trading after a critical failure without explicit recovery action.
 
 ---
 
-## 12. Conclusion
+## 10. TEST Mode Determinism
 
-This revision represents a **complete, gap-free System Requirements baseline** suitable for RTM update, SRS derivation, and audit.
+### SYS-TEST-001 — Deterministic TEST Behavior
+In TEST mode, identical inputs and configuration shall produce identical trading outcomes.
+
+### SYS-TEST-002 — Determinism Scope
+Deterministic behavior shall apply to strategy evaluation, order generation, and trade lifecycle management.
+
+### SYS-TEST-003 — Isolation from Non-Determinism
+TEST mode behavior shall not depend on wall-clock time, live broker state, or non-deterministic ordering.
 
 ---
+
+## 11. Session Reset Semantics
+
+### SYS-SES-005 — Session Boundary Reset Trigger
+The system shall treat the end of a trading session as a reset boundary.
+
+### SYS-SES-006 — Mandatory Session State Reset
+All session-scoped trading state shall be reset prior to the next session.
+
+### SYS-SES-007 — Non-Session State Preservation
+Non-session-scoped state shall be preserved across session boundaries.
+
+### SYS-SES-008 — Restart Consistency
+Session reset and preservation semantics shall be enforced consistently across restarts.
+
+---
+
+## 12. Persistence & Recovery
+
+### SYS-REC-001 — Trading State Persistence
+The system shall persist all trading-relevant state to allow recovery after restart.
+
+### SYS-REC-002 — Broker Reconciliation
+The system shall reconcile persisted trade state with broker-reported positions upon restart.
+
+---
+
+## 13. Logging & Auditability
+
+### SYS-LOG-001 — Trade Decision Logging
+The system shall log all trade decisions, executions, exits, and skipped actions with reasons.
+
+---
+
+## 14. Completion Status
+
+This revision represents a **complete, merged, and gap-free System Requirements baseline**.
+It is approved for:
+- System Architecture derivation
+- RTM update
+- Software Requirements derivation
+
+---
+
+**End of System Requirements Specification (Rev B)**
