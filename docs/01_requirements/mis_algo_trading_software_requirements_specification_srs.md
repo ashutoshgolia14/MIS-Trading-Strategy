@@ -1,3 +1,4 @@
+
 # MIS Algo Trading System
 ## Software Requirements Specification (SRS)
 
@@ -74,28 +75,28 @@ The software does not include:
 **SWR-TRD-001**  
 The software shall evaluate trade entry and exit logic only when a Renko brick is completed.
 
-- Trace: SYS-TRD-001
+- Trace: SYS-DEC-001
 
 ---
 
 **SWR-TRD-002**  
 The software shall compute and apply higher-timeframe directional bias logic as defined by the system strategy.
 
-- Trace: SYS-TRD-002
+- Trace: SYS-DEC-002
 
 ---
 
 **SWR-TRD-004**  
 The software shall compute and apply lower-timeframe momentum and volatility confirmation logic prior to trade entry.
 
-- Trace: SYS-TRD-003
+- Trace: SYS-DEC-004
 
 ---
 
 **SWR-TRD-003**  
 The software shall ensure deterministic trade decision outcomes when multiple Renko bricks are generated in rapid succession.
 
-- Trace: SYS-TRD-CONC-001
+- Trace: SYS-TEST-001, SYS-TEST-003
 
 ---
 
@@ -104,14 +105,14 @@ The software shall ensure deterministic trade decision outcomes when multiple Re
 **SWR-TIM-001**  
 The software shall enforce the configured intraday entry window for trade initiation.
 
-- Trace: SYS-TIM-001, SYS-TIM-002
+- Trace: SYS-SES-002, SYS-SES-003
 
 ---
 
 **SWR-TIM-002**  
 The software shall trigger forced position closure at the configured end-of-day force close time.
 
-- Trace: SYS-TIM-003
+- Trace: SYS-SES-004
 
 ---
 
@@ -120,7 +121,14 @@ The software shall trigger forced position closure at the configured end-of-day 
 **SWR-RNK-001**  
 The software shall calculate Renko bricks using the configured brick size and live market price inputs.
 
-- Trace: SYS-RNK-001, SYS-RNK-002
+- Trace: SYS-RNK-001, SYS-RNK-002, SYS-RNK-004
+
+---
+
+**SWR-RNK-002**  
+The software shall apply a deterministic fallback price source for Renko brick construction when valid bid/ask data is unavailable.
+
+- Trace: SYS-RNK-005
 
 ---
 
@@ -129,21 +137,21 @@ The software shall calculate Renko bricks using the configured brick size and li
 **SWR-EXE-001**  
 The software shall place market orders for trade entry and exit via the broker interface.
 
-- Trace: SYS-EXE-001
+- Trace: SYS-TRD-003
 
 ---
 
 **SWR-EXE-002**  
 The software shall validate spread constraints prior to order placement.
 
-- Trace: SYS-EXE-002
+- Trace: SYS-TRD-004
 
 ---
 
 **SWR-EXE-003**  
 The software shall accept partial order fills and shall not retry unfilled quantities.
 
-- Trace: SYS-EXE-003
+- Trace: SYS-TRD-005
 
 ---
 
@@ -214,4 +222,3 @@ No software requirement exists without system-level justification.
 ---
 
 **End of Software Requirements Specification**
-
