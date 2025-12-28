@@ -1,258 +1,149 @@
+
 # MIS Algo Trading System
-## System Requirements Specification (SyRS)
-
-**Status:** 🟡 Revised after Inspection  
-**Derived From:** Stakeholder Requirements (Uploaded Project Files)  
-**Traceability Mode:** Option A – Explicit stakeholder referencing  
-**Change Control:** Via formal inspection only
+## System Requirements Specification (SY-RS)
+### Revision B — Corrected & Gap-Free
 
 ---
 
-## 1. Purpose
+## 1. Introduction
 
-This document defines the **System Requirements** for the MIS Algo Trading System.
+This document specifies the **System Requirements** for the MIS Algo Trading System.
+It defines **system-level behavioral constraints** derived from:
+- Stakeholder Requirements (Developer Spec, Strategy Spec)
+- REM – Consistency Addendum v3
 
-System Requirements describe:
-- End-to-end **system behavior**
-- External interactions and constraints
-- Timing, operational, and safety-related behavior
-
-This document is the authoritative basis for:
-- System Architecture (SyAD)
-- System-level verification and validation
+This revision incorporates all corrections approved during **Phase 13.1.1**.
 
 ---
 
-## 2. References (Stakeholder Requirements)
+## 2. System Scope
 
-The following documents are treated as **authoritative stakeholder requirements**:
-
-- *MIS Multitimeframe RSI MACD Histogram Renko HeikenAshi EMA – Final*
-- *Developer Spec – MIS Multi Timeframe Renko HeikenAshi RSI MACD EMA – Final*
+The system shall implement an automated intraday MIS trading system based on Renko price action and multi-timeframe technical indicators, supporting both TEST and PROD execution modes.
 
 ---
 
-## 3. System Context
+## 3. Execution Modes
 
-The MIS Algo Trading System is an automated intraday trading system that:
-- Trades MIS-enabled equities via a broker
-- Uses multi-timeframe technical analysis
-- Executes trades based on Renko chart events
-
-External actors:
-- Broker system
-- Market data provider
-- User (configuration & monitoring)
+### SY-RS-01 — Execution Mode Separation
+The system shall support distinct TEST and PROD execution modes.
 
 ---
 
-## 4. System Boundary Definition
+## 4. Trading Session & Lifecycle
 
-### 4.1 Inside the System
+### SY-RS-02 — Intraday Operation
+The system shall operate strictly within intraday trading sessions.
 
-The following capabilities are part of the system:
-- Trade signal evaluation and validation
-- Timing enforcement (entry window, force close)
-- Risk and position sizing computation
-- Order decision and submission
-- Trading state persistence and recovery
-
-### 4.2 Outside the System
-
-The following are external to the system:
-- Exchange matching and settlement
-- Broker internal order routing and retries
-- Market data source reliability
-- UI rendering and client-side behavior
+### SY-RS-03 — Force-Close Requirement
+The system shall ensure that no open positions remain beyond the configured force-close time.
 
 ---
 
-## 5. System Requirement Conventions
+## 5. Renko Brick Lifecycle (Corrected)
 
-- All requirements use **“shall”** statements
-- Each requirement has a unique `SYS-` identifier
-- Requirements are atomic and testable
-- Derived requirements are explicitly marked
+### SY-RS-NEW-01 — Renko Brick Size Computation Cadence
+The system shall compute the Renko brick size once per trading week using the configured computation method.
 
----
+### SY-RS-NEW-02 — Renko Brick Size Immutability
+The system shall ensure that the computed Renko brick size remains unchanged throughout all trading sessions within the same trading week.
 
-## 6. System Requirements
-
-### 6.1 Trading Decision & Strategy Execution
-
-**SYS-TRD-001**  
-The system shall evaluate trade entry and exit decisions only upon completion of a Renko brick.
-
-- Trace: Stakeholder Spec – Renko-based execution
+### SY-RS-NEW-03 — Renko Brick Size Execution Scope
+The system shall apply the same Renko brick size consistently across all executions, restarts, and sessions occurring within the same trading week.
 
 ---
 
-**SYS-TRD-002**  
-The system shall derive directional bias using higher timeframe Heikin-Ashi charts as defined in the stakeholder strategy (Directional Bias – TF1).
+## 6. Multi-Timeframe & Decision Semantics (Corrected)
 
-- Trace: Stakeholder Spec – Directional Bias (TF1)
+### SY-RS-NEW-04A — Continuous Indicator Data Updates
+The system shall update lower-timeframe indicator inputs continuously as new price data is received.
 
----
+### SY-RS-NEW-04B — Intrabar Indicator Computation
+The system shall compute lower-timeframe indicators without waiting for the completion of time-based candles.
 
-**SYS-TRD-003**  
-The system shall validate trade entries using multi-timeframe momentum and volatility conditions prior to order placement.
+### SY-RS-NEW-05A — Renko Decision Timeframe Authority
+The system shall restrict trade entry and exit decision authority exclusively to the Renko-based decision timeframe.
 
-- Trace: Stakeholder Spec – TF2 / TF3 confirmation
+### SY-RS-NEW-05B — Context-Only Usage of Lower Timeframes
+The system shall not permit indicators derived from non-Renko timeframes to independently trigger trade entry or exit actions.
 
----
-
-### 6.2 Timing & Market Session Control
-
-**SYS-TIM-001**  
-The system shall allow new trade entries only within the configured intraday entry window.
-
-- Trace: Stakeholder Spec – Entry Window
+### SY-RS-NEW-06 — Decision Evaluation Timing
+The system shall evaluate trade entry and exit decisions only upon completion of Renko price structures.
 
 ---
 
-**SYS-TIM-002**  
-The system shall prevent initiation of new trades outside the defined entry window regardless of signal validity.
+## 7. Pricing Semantics (Corrected)
 
-- Trace: Stakeholder Spec – No Late Entries
+### SY-RS-NEW-07 — Primary Price Source Definition
+The system shall derive price inputs for Renko construction using the midpoint of the best available bid and ask prices.
 
----
+### SY-RS-NEW-08 — Price Source Application Scope
+The system shall apply the bid-ask midpoint price exclusively for the construction of Renko price structures used in strategy evaluation.
 
-**SYS-TIM-003**  
-The system shall forcibly close all open positions at the configured end-of-day force close time.
-
-- Trace: Stakeholder Spec – End-of-Day Close
-
----
-
-### 6.3 Renko Brick Management
-
-**SYS-RNK-001**  
-The system shall compute Renko brick size once per trading week and apply it consistently throughout that week.
-
-- Trace: Stakeholder Spec – Renko Weekly Job
+### SY-RS-NEW-09 — Price Source Fallback Behavior
+In the absence of valid bid and ask prices, the system shall apply a defined and deterministic fallback price source as configured.
 
 ---
 
-**SYS-RNK-002**  
-The system shall generate Renko bricks using live market prices derived from bid/ask midpoint data.
+## 8. Trade Limits & Session Control (Corrected)
 
-- Trace: Developer Spec – Renko Formation Rules
+### SY-RS-NEW-10 — Trading Session Definition
+The system shall define a trading session as the configured intraday trading window bounded by session start and session end times.
 
----
+### SY-RS-NEW-11 — Trade Count Limit per Session
+The system shall permit at most one completed trade per instrument within a single trading session.
 
-### 6.4 Order Execution & Broker Interaction
-
-**SYS-EXE-001**  
-The system shall execute all trade entries and exits using market orders.
-
-- Trace: Stakeholder Spec – Liquidity & Order Type
+### SY-RS-NEW-12 — Session Trade Limit Persistence
+The system shall enforce the per-session trade limit consistently across restarts and executions occurring within the same trading session.
 
 ---
 
-**SYS-EXE-002**  
-The system shall validate market spread prior to trade execution and shall not trade when the spread exceeds the configured threshold.
+## 9. Safety & Failure Handling (Corrected)
 
-- Trace: Stakeholder Spec – Liquidity Check
+### SY-RS-NEW-13 — Critical Failure Classification
+The system shall classify failures that may impact trading safety, data integrity, or execution correctness as critical failures.
 
----
+### SY-RS-NEW-14 — Trading Halt on Critical Failure
+Upon detection of a critical failure, the system shall immediately halt all trade entry and exit actions and prevent the placement of any new orders.
 
-**SYS-EXE-003**  
-The system shall accept partial order fills and shall not retry execution for the unfilled remainder.
+### SY-RS-NEW-15 — Safe State Enforcement
+When trading is halted due to a critical failure, the system shall enter a safe state in which no automated trading actions may occur.
 
-- Trace: Developer Spec – Partial Fill Handling
-
----
-
-### 6.5 Risk & Position Management
-
-**SYS-RSK-001**  
-The system shall compute position size based on a configured risk percentage of user-defined equity.
-
-- Trace: Stakeholder Spec – Risk Control
+### SY-RS-NEW-16 — Controlled Recovery Requirement
+The system shall not resume automated trading after a critical failure without an explicit recovery action.
 
 ---
 
-**SYS-RSK-002**  
-The system shall enforce a maximum margin usage per trade as a percentage of total equity.
+## 10. TEST Mode Determinism (Corrected)
 
-- Trace: Stakeholder Spec – Margin Cap
+### SY-RS-NEW-17 — Deterministic Behavior in TEST Mode
+When operating in TEST mode, the system shall produce deterministic trading behavior such that identical inputs and configuration result in identical trading decisions and outcomes.
 
----
+### SY-RS-NEW-18 — Determinism Scope Definition
+Deterministic behavior in TEST mode shall apply to strategy evaluation, order generation, and trade lifecycle management.
 
-**SYS-RSK-003**  
-The system shall use a fixed equity value per trading day for all risk calculations.
-
-- Trace: Stakeholder Spec – Equity Handling
-
----
-
-### 6.6 Persistence & Recovery
-
-**SYS-REC-001**  
-The system shall persist all trading-relevant state to allow recovery after restart.
-
-- Trace: Developer Spec – Persisted State
+### SY-RS-NEW-19 — Isolation from Non-Deterministic Influences
+In TEST mode, the system shall not depend on wall-clock time, live broker state, or non-deterministic data ordering.
 
 ---
 
-**SYS-REC-002**  
-The system shall reconcile persisted trade state with broker-reported positions upon restart.
+## 11. Session Reset Semantics (Corrected)
 
-- Trace: Developer Spec – Restart Behavior
+### SY-RS-NEW-20 — Session Boundary as Reset Trigger
+The system shall treat the end of a trading session as a logical boundary at which session-scoped state transitions occur.
 
----
+### SY-RS-NEW-21 — Mandatory Session State Reset
+Upon crossing a trading session boundary, the system shall reset all session-scoped trading state prior to the start of the next session.
 
-### 6.7 Deterministic Behavior Under Concurrency [DERIVED]
+### SY-RS-NEW-22 — Preservation of Non-Session State
+The system shall preserve non-session-scoped state across trading session boundaries.
 
-**SYS-TRD-CONC-001 [DERIVED]**  
-The system shall ensure deterministic trading behavior under concurrent market events such that duplicate, overlapping, or stale trade actions do not occur.
-
-- Derived from: Concurrency and multi-brick Renko gap analysis
-
----
-
-### 6.8 Logging & Auditability
-
-**SYS-LOG-001**  
-The system shall log all trade decisions, executions, exits, and skipped actions with reasons.
-
-- Trace: Stakeholder Spec – Logging Notes
+### SY-RS-NEW-23 — Session Reset Consistency Across Restarts
+The system shall enforce session reset and preservation semantics consistently across restarts and executions.
 
 ---
 
-## 7. System Operational Constraints
+## 12. Conclusion
 
-The following constraints define *when* the system operates but do not describe functional behavior:
-
-- Entry window timing
-- End-of-day force close time
-- Weekly Renko brick rebuild timing
-
-These constraints are system-level and configurable.
+This revision represents a **complete, gap-free System Requirements baseline** suitable for RTM update, SRS derivation, and audit.
 
 ---
-
-## 8. Stakeholder to System Requirement Trace Matrix
-
-| Stakeholder Section | System Requirement IDs |
-|--------------------|------------------------|
-| Directional Bias – TF1 | SYS-TRD-002 |
-| Entry Window | SYS-TIM-001, SYS-TIM-002 |
-| End-of-Day Close | SYS-TIM-003 |
-| Risk Control | SYS-RSK-001, SYS-RSK-002 |
-| Renko Weekly Job | SYS-RNK-001 |
-| Liquidity Check | SYS-EXE-002 |
-
----
-
-## 9. Completion Status
-
-- Inspection findings addressed
-- System boundary made explicit
-- SYS vs SW concerns resolved
-- Ready for System Architecture derivation
-
----
-
-**End of System Requirements Specification**
-
