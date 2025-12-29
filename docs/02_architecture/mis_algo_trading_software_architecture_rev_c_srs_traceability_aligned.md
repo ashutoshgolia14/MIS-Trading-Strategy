@@ -1,7 +1,8 @@
 
 # MIS Algo Trading System
-## Software Architecture (Rev B – SRS Traceability Aligned)
-
+## Software Architecture (Rev C – Trading Engine)
+**Revision**: Rev C
+**Change Trigger**: ADR-001 — Introduce TradingEngine as Explicit Execution Owner
 **Status:** 🟡 Revised after Architecture Review  
 **Derived From:**  
 - Software Requirements Specification (SRS – Frozen)  
@@ -98,7 +99,14 @@ The software is structured into the following logical layers:
 
 ---
 
-### 3.5 Execution Manager
+### 3.5 TradingEngine (Execution Control Layer)
+
+**Responsibilities**
+- Position lifecycle control
+- Policy enforcement sequencing
+- Invocation of execution services
+
+### 3.6 Execution Manager
 
 **Responsibilities**
 - Submit market orders via broker interface
@@ -112,7 +120,7 @@ The software is structured into the following logical layers:
 
 ---
 
-### 3.6 Risk Management Service
+### 3.7 Risk Management Service
 
 **Responsibilities**
 - Compute position size based on risk percentage
@@ -126,7 +134,7 @@ The software is structured into the following logical layers:
 
 ---
 
-### 3.7 Persistence Layer
+### 3.8 Persistence Layer
 
 **Responsibilities**
 - Persist trading-relevant state for restart recovery
@@ -136,7 +144,7 @@ The software is structured into the following logical layers:
 
 ---
 
-### 3.8 Recovery Manager
+### 3.9 Recovery Manager
 
 **Responsibilities**
 - Reconcile persisted state with broker-reported positions on startup
@@ -146,7 +154,7 @@ The software is structured into the following logical layers:
 
 ---
 
-### 3.9 Logging Service
+### 3.10 Logging Service
 
 **Responsibilities**
 - Log all trading decisions and actions with categorization for audit
@@ -181,6 +189,9 @@ Interfaces describe responsibility boundaries and interaction intent only.
 - No broker interaction outside Execution Manager
 - Per-symbol runtime isolation is mandatory
 - All external interactions occur via adapters
+- Only TradingEngine may invoke Execution Manager
+- Execution policies SHALL NOT be enforced outside TradingEngine
+
 
 ---
 
@@ -190,6 +201,8 @@ Interfaces describe responsibility boundaries and interaction intent only.
 - Per-symbol runtime isolation is mandatory
 - Broker interaction is centralized via the Execution Manager
 - Architecture is layered with strict dependency direction
+- ADR-001: Execution ownership centralized in TradingEngine
+
 
 ---
 
