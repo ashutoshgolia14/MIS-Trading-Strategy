@@ -67,31 +67,59 @@ On any critical failure, trading halts and the system enters a safe state.
 - Computes position sizing
 - Enforces margin and equity constraints
 
-### 3.6 Execution Manager
+### 3.6 TradingEngine (Execution Ownership)
+
+**Purpose**  
+The TradingEngine is the **single, explicit owner of trading execution**.
+
+It centralizes:
+- Execution sequencing
+- Policy enforcement ordering
+- Position lifecycle management (ENTER / HOLD / EXIT)
+
+**Responsibilities**
+- Receive evaluated trade intent from Symbol Runtime
+- Apply execution policies deterministically
+- Maintain execution lifecycle state
+- Decide whether and when execution may occur
+
+**Explicit Non-Responsibilities**
+- Strategy evaluation
+- Indicator computation
+- Market data handling
+- Direct broker interaction
+
+### 3.7 Execution Manager
 - Submits market orders
 - Handles partial fills and broker responses
 
-### 3.7 Persistence Layer
+**Execution Boundary**
+- The Execution Manager SHALL be invoked **only by TradingEngine**.
+- It performs no policy evaluation and owns no execution lifecycle state.
+
+### 3.8 Persistence Layer
 - Persists all trading-relevant state
 
-### 3.8 Recovery Manager
+### 3.9 Recovery Manager
 - Restores state on restart
 - Reconciles with broker positions
 
-### 3.9 Logging Service
+### 3.10 Logging Service
 - Records all decisions, executions, and failures
 
 ---
 
 ## 4. Critical Trading Flow
 
-Market Data → Renko Engine → Strategy Core → Symbol Runtime → Scheduler → Risk Management → Execution Manager → Broker
+Market Data → Renko Engine → Strategy Core → Symbol Runtime → TradingEngine → Execution Manager → Broker
 
 Each step is gated; rejection at any stage terminates the flow.
 
 ---
 
 ## 5. Data & State Model
+| Execution lifecycle state | TradingEngine |
+| Policy evaluation state   | TradingEngine |
 
 ### 5.1 Persisted State
 - Symbol runtime state
@@ -137,6 +165,7 @@ The following design decisions are explicitly recorded to preserve architectural
 - **Broker-reported positions are authoritative** during recovery and reconciliation.
 - **Partial state commits are forbidden** to prevent split-brain recovery scenarios.
 - Execution retries are **not permitted** within a single decision cycle to preserve determinism.
+- ADR-001: Execution ownership centralized in TradingEngine
 
 ---
 
