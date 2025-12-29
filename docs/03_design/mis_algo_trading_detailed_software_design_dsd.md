@@ -1,12 +1,15 @@
+
 # MIS Algo Trading System
 ## Detailed Software Design (DSD)
 
-**Status:** 🟡 Draft (Formal)  
+**Status:** 🔒 Frozen  
 **Derived From:**  
-- Software Architecture (Rev B – Frozen, Traceability Aligned)  
-- Software Requirements Specification (SRS – Frozen)
+- Software Architecture Specification (SW-AD – Rev B, Frozen)  
+- Software Requirements Specification (SRS – Rev B, Frozen)  
+- System Architecture Specification (SyAD – Frozen)
 
-**Design Rule:** This document refines *how* the software fulfills frozen requirements, without changing architecture or scope.
+**Change Policy:**  
+Any modification to this document requires formal change control and impact analysis.
 
 ---
 
@@ -15,234 +18,137 @@
 This document defines the **Detailed Software Design (DSD)** for the MIS Algo Trading System.
 
 The DSD:
-- Translates Software Architecture into **design-level components**
-- Defines **interfaces, data models, and control flows**
-- Provides a blueprint for implementation and unit testing
+- Elaborates the frozen Software Architecture into design-level detail
+- Defines modules, responsibilities, data/state ownership, flows, and failure behavior
+- Provides an implementation-ready baseline without prescribing code or algorithms
 
 ---
 
 ## 2. Design Principles
 
-1. **Strict traceability** – every design element traces to SRS
-2. **Single responsibility** – one concern per component
-3. **Deterministic execution** – no race-dependent behavior
-4. **Fail-safe defaults** – safety over aggressiveness
-5. **Immutability where possible** – especially for snapshots
+### 2.1 Separation of Concerns
+Each module has a single, well-defined responsibility. Strategy logic, timing, risk, execution, and persistence are strictly separated.
+
+### 2.2 Determinism
+For identical input sequences, the system shall produce identical outputs, including after restart.
+
+### 2.3 Single Source of Truth
+All mutable state has exactly one owning component.
+
+### 2.4 Dependency Direction
+Dependencies flow strictly:
+Strategy → Runtime → Services → Adapters
+
+### 2.5 Fail-Safe by Default
+On any critical failure, trading halts and the system enters a safe state.
 
 ---
 
-## 3. High-Level Component Interaction (Runtime Flow)
+## 3. Module Decomposition
 
-**Normal Trading Cycle (per symbol):**
+### 3.1 Strategy Core
+- Evaluates Renko-based trade entry/exit
+- Applies higher and lower timeframe confirmations
+- Produces trade intent only
 
-1. Market Data Adapter receives tick
-2. Renko Engine updates bricks
-3. On brick completion → Symbol Runtime notified
-4. Scheduler validates timing constraints
-5. Strategy Core evaluates entry/exit
-6. Risk Manager computes quantity
-7. Execution Manager places order
-8. Persistence Layer stores state
-9. Logging Service records event
+### 3.2 Renko Engine
+- Builds Renko bricks from market data
+- Applies deterministic fallback pricing
 
----
+### 3.3 Symbol Runtime
+- Maintains per-symbol execution state
+- Serializes decision flow
 
-## 4. Component-Level Design
+### 3.4 Scheduler (Time Governance)
+- Enforces entry window
+- Triggers end-of-day force close
 
-### 4.1 Strategy Core
+### 3.5 Risk Management
+- Computes position sizing
+- Enforces margin and equity constraints
 
-**Responsibilities**
-- Pure evaluation of trading logic
-- No side effects
+### 3.6 Execution Manager
+- Submits market orders
+- Handles partial fills and broker responses
 
-**Key Interfaces**
-- `evaluate(snapshot: StrategySnapshot) -> TradeDecision`
+### 3.7 Persistence Layer
+- Persists all trading-relevant state
 
-**Design Notes**
-- Stateless between calls
-- Uses immutable snapshot objects
+### 3.8 Recovery Manager
+- Restores state on restart
+- Reconciles with broker positions
 
-**Traces to:** SWR-TRD-001, SWR-TRD-002, SWR-TRD-004
-
----
-
-### 4.2 Renko Engine
-
-**Responsibilities**
-- Convert ticks into Renko bricks
-
-**Key Interfaces**
-- `on_tick(price: float) -> Optional[RenkoBrick]`
-
-**Design Notes**
-- Brick size injected at startup
-- Supports multi-brick formation
-
-**Traces to:** SWR-RNK-001
+### 3.9 Logging Service
+- Records all decisions, executions, and failures
 
 ---
 
-### 4.3 Symbol Runtime
+## 4. Critical Trading Flow
 
-**Responsibilities**
-- Orchestrate per-symbol lifecycle
-- Enforce deterministic behavior under concurrent market events
+Market Data → Renko Engine → Strategy Core → Symbol Runtime → Scheduler → Risk Management → Execution Manager → Broker
 
-**Key Interfaces**
-- `on_renko_event(brick: RenkoBrick)`
-
-**Design Notes**
-- Single-threaded per symbol
-- Latest snapshot wins; all older pending snapshots are explicitly discarded
-
-**Traces to:** SWR-TRD-003
+Each step is gated; rejection at any stage terminates the flow.
 
 ---
 
-### 4.4 Scheduler / Time Governance
+## 5. Data & State Model
 
-**Responsibilities**
-- Validate entry window
-- Trigger force close
+### 5.1 Persisted State
+- Symbol runtime state
+- Session and timing state
+- Risk and equity snapshot
+- Execution state
 
-**Key Interfaces**
-- `is_entry_allowed(time) -> bool`
-- `should_force_close(time) -> bool`
-
-**Design Notes**
-- Time-zone aware
-
-**Traces to:** SWR-TIM-001, SWR-TIM-002
+### 5.2 Non-Persisted State
+- Strategy evaluation context
+- Derived indicators
 
 ---
 
-### 4.5 Execution Manager
+## 6. Error & Failure Handling
 
-**Responsibilities**
-- Translate decisions into broker orders
+### 6.1 Failure Categories
+- F1: Data failures
+- F2: Decision/runtime failures
+- F3: Execution failures
+- F4: System/infrastructure failures
 
-**Key Interfaces**
-- `execute(decision: TradeDecision, qty: int) -> ExecutionResult`
-
-**Design Notes**
-- Single execution authority
-- Spread check before order
-- Returned execution result is used for logging and test verification
-
-**Traces to:** SWR-EXE-001, SWR-EXE-002, SWR-EXE-003
+### 6.2 Safety Behavior
+- Trading halts on critical failure
+- System enters safe state
+- Recovery required before resumption
 
 ---
 
-### 4.6 Risk Management Service
+## 7. Recovery Design
 
-**Responsibilities**
-- Compute position size
-
-**Key Interfaces**
-- `calculate_qty(equity, stop_distance) -> int`
-
-**Design Notes**
-- Uses fixed daily equity snapshot
-
-**Traces to:** SWR-RSK-001, SWR-RSK-002, SWR-RSK-003
+- Load persisted state
+- Reconcile with broker
+- Restore symbol runtimes
+- Resume only from safe boundary
 
 ---
 
-### 4.7 Persistence Layer
+## 8. Architectural Decisions (ADR – Summary)
 
-**Responsibilities**
-- Persist trading state atomically
+The following design decisions are explicitly recorded to preserve architectural intent:
 
-**Key Interfaces**
-- `save(state: SymbolState)`
-- `load(symbol) -> SymbolState`
-
-**Design Notes**
-- Atomic per-symbol writes
-
-**Traces to:** SWR-REC-001
+- Per-symbol runtime **discards stale evaluation contexts** to guarantee deterministic outcomes.
+- **Broker-reported positions are authoritative** during recovery and reconciliation.
+- **Partial state commits are forbidden** to prevent split-brain recovery scenarios.
+- Execution retries are **not permitted** within a single decision cycle to preserve determinism.
 
 ---
 
-### 4.8 Recovery Manager
+## 9. Inspection & Freeze
 
-**Responsibilities**
-- Restore and reconcile state on startup
+This DSD:
+- Is fully aligned with frozen SW-AD and SRS
+- Introduces no new behavior
+- Is implementation-ready
 
-**Key Interfaces**
-- `recover(symbol) -> SymbolState`
-
-**Design Notes**
-- Broker is source of truth for open positions
-
-**Traces to:** SWR-REC-002
-
----
-
-### 4.9 Logging Service
-
-**Responsibilities**
-- Structured logging of events
-
-**Key Interfaces**
-- `log(event_type, payload)`
-
-**Design Notes**
-- Log categories mapped to SWRs
-
-**Traces to:** SWR-LOG-001
-
----
-
-## 5. Core Data Models
-
-### 5.1 StrategySnapshot
-- Renko state
-- Indicator values
-- Time context
-
-### 5.2 TradeDecision
-- Action (ENTER / EXIT / HOLD)
-- Reason code
-
-### 5.3 SymbolState
-- Open position
-- Last decision
-- Persisted flags
-
----
-
-## 6. Error Handling & Recovery
-
-- All external failures are contained
-- No partial state updates
-- Safe retry only at orchestration level
-
----
-
-## 7. Unit Test Mapping (Preview)
-
-| Component | SWR Coverage |
-|---------|--------------|
-| Strategy Core | SWR-TRD-* |
-| Renko Engine | SWR-RNK-001 |
-| Scheduler | SWR-TIM-* |
-| Execution Manager | SWR-EXE-* |
-| Risk Manager | SWR-RSK-* |
-| Persistence | SWR-REC-001 |
-| Recovery | SWR-REC-002 |
-| Logging | SWR-LOG-001 |
-
----
-
-## 8. Next Steps
-
-1. Review Detailed Software Design
-2. Inspect & freeze DSD
-3. Define unit test specifications
-4. Begin implementation
+**DSD Status:** 🔒 Frozen
 
 ---
 
 **End of Detailed Software Design**
-
