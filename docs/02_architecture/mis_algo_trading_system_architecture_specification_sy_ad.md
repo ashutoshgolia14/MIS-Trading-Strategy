@@ -1,8 +1,9 @@
+
 # MIS Algo Trading System
 ## System Architecture Specification (SyAD)
 
 **Status:** 🟡 Draft (Formal)  
-**Derived From:** System Requirements Specification (SyRS – Revised)  
+**Derived From:** System Requirements Specification (SyRS – Revised, Frozen)  
 **Traceability:** Every architecture element traces to ≥1 System Requirement  
 **Change Policy:** Modifications allowed until SyAD freeze
 
@@ -41,8 +42,8 @@ The following System Requirements drive this architecture:
 
 | Driver | System Requirement |
 |------|-------------------|
-| Deterministic trading | SYS-TRD-001, SYS-TRD-CONC-001 |
-| Timing enforcement | SYS-TIM-001 to SYS-TIM-003 |
+| Deterministic trading | SYS-DEC-001, SYS-TEST-001 |
+| Timing enforcement | SYS-SES-001 to SYS-SES-004 |
 | Risk control | SYS-RSK-001 to SYS-RSK-003 |
 | Recoverability | SYS-REC-001, SYS-REC-002 |
 | Renko lifecycle | SYS-RNK-001, SYS-RNK-002 |
@@ -62,6 +63,7 @@ The MIS Algo Trading System is decomposed into the following architectural eleme
 5. **Timing & Session Control Subsystem**
 6. **Persistence & Recovery Subsystem**
 7. **Monitoring & Logging Subsystem**
+8. **Safety & Supervision Subsystem**
 
 ---
 
@@ -73,12 +75,18 @@ The MIS Algo Trading System is decomposed into the following architectural eleme
 - Evaluate trade entry and exit conditions
 - Enforce Renko-based decision timing
 - Apply multi-timeframe strategy rules
+- Enforce trade frequency limits
+- Ensure deterministic decision sequencing
 
 **Allocated System Requirements**
+- SYS-DEC-001
+- SYS-DEC-002
+- SYS-DEC-003
+- SYS-DEC-004
 - SYS-TRD-001
 - SYS-TRD-002
-- SYS-TRD-003
-- SYS-TRD-CONC-001
+- SYS-TEST-001
+- SYS-TEST-002
 
 ---
 
@@ -90,9 +98,9 @@ The MIS Algo Trading System is decomposed into the following architectural eleme
 - Handle partial fills
 
 **Allocated System Requirements**
-- SYS-EXE-001
-- SYS-EXE-002
-- SYS-EXE-003
+- SYS-TRD-003
+- SYS-TRD-004
+- SYS-TRD-005
 
 ---
 
@@ -104,6 +112,8 @@ The MIS Algo Trading System is decomposed into the following architectural eleme
 
 **Allocated System Requirements**
 - SYS-RNK-002
+- SYS-RNK-004
+- SYS-RNK-005
 
 ---
 
@@ -126,12 +136,16 @@ The MIS Algo Trading System is decomposed into the following architectural eleme
 - Enforce entry window rules
 - Trigger end-of-day force close
 - Govern weekly Renko rebuild timing
+- Manage session boundaries
 
 **Allocated System Requirements**
-- SYS-TIM-001
-- SYS-TIM-002
-- SYS-TIM-003
+- SYS-SES-001
+- SYS-SES-002
+- SYS-SES-003
+- SYS-SES-004
 - SYS-RNK-001
+- SYS-SES-005
+- SYS-SES-006
 
 ---
 
@@ -145,6 +159,8 @@ The MIS Algo Trading System is decomposed into the following architectural eleme
 **Allocated System Requirements**
 - SYS-REC-001
 - SYS-REC-002
+- SYS-SES-007
+- SYS-SES-008
 
 ---
 
@@ -157,6 +173,23 @@ The MIS Algo Trading System is decomposed into the following architectural eleme
 
 **Allocated System Requirements**
 - SYS-LOG-001
+
+---
+
+### 5.8 Safety & Supervision Subsystem
+
+**Responsibilities**
+- Detect critical system failures
+- Halt trading on safety violations
+- Enforce safe-state behavior
+- Coordinate controlled recovery
+
+**Allocated System Requirements**
+- SYS-SAFE-001
+- SYS-SAFE-002
+- SYS-SAFE-003
+- SYS-SAFE-004
+- SYS-TEST-003
 
 ---
 
@@ -211,7 +244,7 @@ No architectural element exists without justification.
 This System Architecture:
 - Fully satisfies the System Requirements
 - Provides a clear basis for Software Architecture derivation
-- Introduces no contradiction with the frozen Software Architecture
+- Introduces no contradiction with the frozen System Architecture
 
 ---
 
@@ -224,4 +257,3 @@ This System Architecture:
 ---
 
 **End of System Architecture Specification**
-

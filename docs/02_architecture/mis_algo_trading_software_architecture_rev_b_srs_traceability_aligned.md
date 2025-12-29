@@ -1,13 +1,14 @@
+
 # MIS Algo Trading System
 ## Software Architecture (Rev B – SRS Traceability Aligned)
 
-**Status:** 🔒 Frozen (Traceability Aligned Revision)  
+**Status:** 🟡 Revised after Architecture Review  
 **Derived From:**  
 - Software Requirements Specification (SRS – Frozen)  
 - System Architecture Specification (SyAD – Frozen)
 
 **Revision Note:**  
-This revision introduces **explicit Software Requirement (SWR) traceability** only.  
+This revision introduces **explicit Software Requirement (SWR) traceability and interface clarity** only.  
 No architectural structure, responsibility, or layering has been modified.
 
 ---
@@ -34,10 +35,6 @@ This Software Architecture is described using the following standard views:
 - **Runtime View** – interaction of components during normal operation
 - **Constraint View** – rules and constraints governing architecture usage
 
-These views are documented textually in the sections below.
-
-
-
 The software is structured into the following logical layers:
 
 1. **Core Strategy Layer** – pure trading logic
@@ -51,10 +48,6 @@ The software is structured into the following logical layers:
 ---
 
 ## 3. Architectural Elements & Responsibilities (Logical View)
-
-This section defines the logical decomposition of the software system into architectural elements and their responsibilities.
-
-
 
 ### 3.1 Strategy Core
 
@@ -74,9 +67,11 @@ This section defines the logical decomposition of the software system into archi
 
 **Responsibilities**
 - Generate Renko bricks from live market prices using configured brick size
+- Apply deterministic fallback price source when bid/ask data is unavailable
 
 **Realizes Software Requirements**
 - SWR-RNK-001 (Renko processing)
+- SWR-RNK-002 (Deterministic fallback price source)
 
 ---
 
@@ -161,31 +156,26 @@ This section defines the logical decomposition of the software system into archi
 
 ---
 
-## 4. Architecture ↔ Software Requirements Traceability Summary (Justification View)
+## 4. Software Interface View
 
-This section provides explicit justification for each architectural element by mapping it to frozen Software Requirements.
+This section defines the **logical interfaces** between software architectural elements.
+Interfaces describe responsibility boundaries and interaction intent only.
 
-
-
-| Architecture Element | Software Requirements |
-|---------------------|-----------------------|
-| Strategy Core | SWR-TRD-001, SWR-TRD-002, SWR-TRD-004 |
-| Renko Engine | SWR-RNK-001 |
-| Symbol Runtime | SWR-TRD-003 |
-| Scheduler | SWR-TIM-001, SWR-TIM-002 |
-| Execution Manager | SWR-EXE-001, SWR-EXE-002, SWR-EXE-003 |
-| Risk Management | SWR-RSK-001, SWR-RSK-002, SWR-RSK-003 |
-| Persistence Layer | SWR-REC-001 |
-| Recovery Manager | SWR-REC-002 |
-| Logging Service | SWR-LOG-001 |
+| Provider | Consumer | Purpose |
+|--------|----------|---------|
+| Market Data Adapter | Renko Engine | Provide normalized price inputs |
+| Renko Engine | Strategy Core | Emit completed Renko brick events |
+| Strategy Core | Symbol Runtime | Trade decision intent |
+| Symbol Runtime | Scheduler | Timing validation |
+| Scheduler | Execution Manager | Execution authorization |
+| Risk Management Service | Execution Manager | Position sizing approval |
+| Execution Manager | Broker Adapter | Order submission |
+| Persistence Layer | Stateful Components | State persistence |
+| Logging Service | All Components | Audit logging |
 
 ---
 
 ## 5. Architectural Constraints (Constraint View)
-
-The following constraints govern all software design and implementation activities.
-
-
 
 - No strategy logic outside Strategy Core
 - No broker interaction outside Execution Manager
@@ -196,14 +186,10 @@ The following constraints govern all software design and implementation activiti
 
 ## 6. Architectural Decisions (ADR – Summary)
 
-The following key architectural decisions were taken and are considered frozen:
-
 - Renko-brick–driven evaluation is the sole trigger for trade decisions
 - Per-symbol runtime isolation is mandatory
 - Broker interaction is centralized via the Execution Manager
 - Architecture is layered with strict dependency direction
-
-These decisions are justified by the frozen System and Software Requirements.
 
 ---
 
@@ -212,11 +198,10 @@ These decisions are justified by the frozen System and Software Requirements.
 This Software Architecture revision:
 - Is fully aligned with frozen SRS and SyAD
 - Introduces no new behavior or structure
-- Is **FINAL and FROZEN**
+- Is **FINAL and READY FOR FREEZE** upon approval
 
 Any future changes require formal change control.
 
 ---
 
 **End of Software Architecture (Rev B)**
-
