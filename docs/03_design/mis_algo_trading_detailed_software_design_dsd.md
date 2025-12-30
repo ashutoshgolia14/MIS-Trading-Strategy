@@ -22,6 +22,9 @@ The DSD:
 - Defines modules, responsibilities, data/state ownership, flows, and failure behavior
 - Provides an implementation-ready baseline without prescribing code or algorithms
 
+
+- Revision C introduces the **TradingEngine** component to make execution ownership, policy enforcement, and position lifecycle management **explicit, singular, and authoritative**.
+
 ---
 
 ## 2. Design Principles
@@ -148,12 +151,24 @@ Each step is gated; rejection at any stage terminates the flow.
 
 ---
 
-## 7. Recovery Design
+## 7. Recovery Design 
+### Persisted vs Derived State
 
-- Load persisted state
-- Reconcile with broker
-- Restore symbol runtimes
-- Resume only from safe boundary
+The following distinction applies during system recovery:
+
+- **Persisted State**
+  - Execution lifecycle state (ENTER / HOLD / EXIT)
+  - Open position metadata required for reconciliation
+  - Last known execution decision boundary
+
+- **Derived State**
+  - Indicator values
+  - Strategy evaluation context
+  - Renko construction state
+
+Derived state SHALL be recomputed deterministically after recovery.
+Persisted state SHALL be treated as authoritative until reconciled with broker-reported positions.
+
 
 ---
 

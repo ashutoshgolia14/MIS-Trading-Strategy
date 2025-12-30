@@ -87,7 +87,20 @@ The software is structured into the following logical layers:
 
 ---
 
-### 3.4 Scheduler / Time Governance
+### 3.4 Application Pipeline
+
+**Responsibilities**
+- Event routing
+- Context assembly
+
+**Explicit Non-Responsibilities**
+- Execution control
+- Policy enforcement
+- Position lifecycle management
+
+---
+
+### 3.5 Scheduler / Time Governance
 
 **Responsibilities**
 - Enforce intraday entry window
@@ -99,14 +112,19 @@ The software is structured into the following logical layers:
 
 ---
 
-### 3.5 TradingEngine (Execution Control Layer)
+### 3.6 TradingEngine (Execution Control Layer)
 
 **Responsibilities**
-- Position lifecycle control
-- Policy enforcement sequencing
-- Invocation of execution services
+- Own execution lifecycle (ENTER / HOLD / EXIT)
+- Enforce policy evaluation ordering
+- Invoke execution services
 
-### 3.6 Execution Manager
+**Non-Responsibilities**
+- Strategy evaluation
+- Indicator computation
+- Routing or wiring
+
+### 3.7 Execution Manager
 
 **Responsibilities**
 - Submit market orders via broker interface
@@ -120,7 +138,7 @@ The software is structured into the following logical layers:
 
 ---
 
-### 3.7 Risk Management Service
+### 3.8 Risk Management Service
 
 **Responsibilities**
 - Compute position size based on risk percentage
@@ -134,7 +152,7 @@ The software is structured into the following logical layers:
 
 ---
 
-### 3.8 Persistence Layer
+### 3.9 Persistence Layer
 
 **Responsibilities**
 - Persist trading-relevant state for restart recovery
@@ -144,7 +162,7 @@ The software is structured into the following logical layers:
 
 ---
 
-### 3.9 Recovery Manager
+### 3.10 Recovery Manager
 
 **Responsibilities**
 - Reconcile persisted state with broker-reported positions on startup
@@ -154,7 +172,7 @@ The software is structured into the following logical layers:
 
 ---
 
-### 3.10 Logging Service
+### 3.11 Logging Service
 
 **Responsibilities**
 - Log all trading decisions and actions with categorization for audit
@@ -180,6 +198,30 @@ Interfaces describe responsibility boundaries and interaction intent only.
 | Execution Manager | Broker Adapter | Order submission |
 | Persistence Layer | Stateful Components | State persistence |
 | Logging Service | All Components | Audit logging |
+
+### 4.1 Critical Trading Flow
+Market Data → Renko Engine → Strategy Core → Application Pipeline → TradingEngine → Scheduler → Risk Management → Execution Manager → Broker
+
+### 4.2 State Ownership
+
+| State Category | Owner |
+|---------------|-------|
+| Strategy state | Strategy Core |
+| Execution lifecycle | TradingEngine |
+| Policy evaluation | TradingEngine |
+| Broker position truth | Broker |
+| Routing/orchestration | Pipeline |
+
+---
+ 
+### 4.3 Event Ingress Modes
+The system supports multiple event ingress modes:
+- **Live Mode** — events sourced from real-time market data adapters
+- **Backtest Mode** — events sourced from historical data feeds
+- **Replay Mode** — events sourced from recorded execution traces
+
+All ingress modes SHALL converge at the same orchestration boundary
+and SHALL be subject to identical architectural constraints.
 
 ---
 
