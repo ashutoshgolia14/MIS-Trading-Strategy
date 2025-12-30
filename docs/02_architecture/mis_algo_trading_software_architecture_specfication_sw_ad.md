@@ -188,25 +188,24 @@ The Application Pipeline is a conceptual orchestration model that is executed at
 This section defines the **logical interfaces** between software architectural elements.
 Interfaces describe responsibility boundaries and interaction intent only.
 
-| Provider | Consumer | Purpose |
-|--------|----------|---------|
-| Market Data Adapter | Renko Engine | Provide normalized price inputs |
-| Renko Engine | Strategy Core | Emit completed Renko brick events |
-| Strategy Core | Symbol Runtime | Trade decision intent |
-| Symbol Runtime | TradingEngine | Evaluated strategy context |
-| TradingEngine | Scheduler | Timing policy evaluation |
-| TradingEngine | Risk Management Service | Position sizing and risk validation |
-| TradingEngine | Execution Manager | Authorized order execution |
-| Execution Manager | Broker Adapter | Order submission |
-| Persistence Layer | Stateful Components | State persistence |
-| Logging Service | All Components | Audit logging |
-
+| Provider | Consumer | Interaction Type | Purpose |
+|--------|----------|------------------|---------|
+| Market Data Adapter | Renko Engine | Event Feed | Provide normalized price inputs |
+| Renko Engine | Strategy Core | Domain Event | Emit completed Renko brick events |
+| Strategy Core | Symbol Runtime | Intent Handoff | Provide evaluated trade intent |
+| Symbol Runtime | TradingEngine | Context Handoff | Transfer evaluated strategy context |
+| TradingEngine | Scheduler | Policy Consultation | Validate timing constraints |
+| TradingEngine | Risk Management Service | Policy Consultation | Validate sizing and risk limits |
+| TradingEngine | Execution Manager | Command Invocation | Submit authorized execution request |
+| Execution Manager | Broker Adapter | External Command | Submit broker order |
+| Persistence Layer | Stateful Components | State Persistence | Persist durable system state |
+| Logging Service | All Components | Observability | Audit and diagnostics logging |
 
 The Execution Manager does not act until TradingEngine has coordinated scheduler and risk decisions.
 
 ---
  
-### 4.3 Event Ingress Modes
+### 4.1 Event Ingress Modes
 The system supports multiple event ingress modes:
 - **Live Mode** — events sourced from real-time market data adapters
 - **Backtest Mode** — events sourced from historical data feeds
