@@ -87,7 +87,8 @@ The software is structured into the following logical layers:
 
 ---
 
-### 3.4 Application Pipeline
+#### 3.3.1 Application Pipeline
+The Application Pipeline is a conceptual orchestration model that is executed at runtime by the per-symbol Symbol Runtime component.
 
 **Responsibilities**
 - Event routing
@@ -192,25 +193,16 @@ Interfaces describe responsibility boundaries and interaction intent only.
 | Market Data Adapter | Renko Engine | Provide normalized price inputs |
 | Renko Engine | Strategy Core | Emit completed Renko brick events |
 | Strategy Core | Symbol Runtime | Trade decision intent |
-| Symbol Runtime | Scheduler | Timing validation |
-| Scheduler | Execution Manager | Execution authorization |
-| Risk Management Service | Execution Manager | Position sizing approval |
+| Symbol Runtime | TradingEngine | Evaluated strategy context |
+| TradingEngine | Scheduler | Timing policy evaluation |
+| TradingEngine | Risk Management Service | Position sizing and risk validation |
+| TradingEngine | Execution Manager | Authorized order execution |
 | Execution Manager | Broker Adapter | Order submission |
 | Persistence Layer | Stateful Components | State persistence |
 | Logging Service | All Components | Audit logging |
 
-### 4.1 Critical Trading Flow
-Market Data → Renko Engine → Strategy Core → Application Pipeline → TradingEngine → Scheduler → Risk Management → Execution Manager → Broker
 
-### 4.2 State Ownership
-
-| State Category | Owner |
-|---------------|-------|
-| Strategy state | Strategy Core |
-| Execution lifecycle | TradingEngine |
-| Policy evaluation | TradingEngine |
-| Broker position truth | Broker |
-| Routing/orchestration | Pipeline |
+The Execution Manager does not act until TradingEngine has coordinated scheduler and risk decisions.
 
 ---
  
@@ -233,6 +225,7 @@ and SHALL be subject to identical architectural constraints.
 - All external interactions occur via adapters
 - Only TradingEngine may invoke Execution Manager
 - Execution policies SHALL NOT be enforced outside TradingEngine
+- Scheduler and Risk Management influence execution authorization but do not directly invoke execution.
 
 
 ---

@@ -113,16 +113,22 @@ It centralizes:
 ---
 
 ## 4. Critical Trading Flow
-
-Market Data → Renko Engine → Strategy Core → Symbol Runtime → TradingEngine → Execution Manager → Broker
+Market Data → Renko Engine → Strategy Core → Symbol Runtime → TradingEngine → Scheduler → Risk Management → Execution Manager → Broker
 
 Each step is gated; rejection at any stage terminates the flow.
 
 ---
 
 ## 5. Data & State Model
+### 4.2 State Ownership
+
+| State Category | Owner |
+|---------------|-------|
+| Strategy state | Strategy Core |
 | Execution lifecycle state | TradingEngine |
-| Policy evaluation state   | TradingEngine |
+| Policy evaluation state | TradingEngine |
+| Broker position truth | Broker |
+| Routing/orchestration | Pipeline |
 
 ### 5.1 Persisted State
 - Symbol runtime state
