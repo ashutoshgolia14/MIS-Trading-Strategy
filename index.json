@@ -1,0 +1,104 @@
+{
+  "repository": "ashutoshgolia14/MIS-Trading-Strategy",
+  "branch": "main",
+  "base_raw_url": "https://raw.githubusercontent.com/ashutoshgolia14/MIS-Trading-Strategy/main",
+  "files": {
+    "root": [
+      "README.md"
+    ],
+    "src": {
+      "__init__.py": "src/__init__.py",
+      "__main__.py": "src/__main__.py",
+      "app": {
+        "bootstrap.py": "src/app/bootstrap.py",
+        "env.py": "src/app/env.py",
+        "backtest": {
+          "data_loader.py": "src/app/backtest/data_loader.py",
+          "recorder.py": "src/app/backtest/recorder.py",
+          "report.py": "src/app/backtest/report.py",
+          "runner.py": "src/app/backtest/runner.py"
+        },
+        "wiring": {
+          "context_builder.py": "src/app/wiring/context_builder.py",
+          "pipeline.py": "src/app/wiring/pipeline.py",
+          "runtime.py": "src/app/wiring/runtime.py"
+        }
+      },
+      "domain": {
+        "indicators": {
+          "calculators.py": "src/domain/indicators/calculators.py",
+          "models.py": "src/domain/indicators/models.py"
+        },
+        "renko": {
+          "builder.py": "src/domain/renko/builder.py",
+          "models.py": "src/domain/renko/models.py"
+        },
+        "strategy": {
+          "context.py": "src/domain/strategy/context.py",
+          "models.py": "src/domain/strategy/models.py",
+          "evaluator.py": "src/domain/strategy/evaluator.py",
+          "flags.py": "src/domain/strategy/flags.py",
+          "bias.py": "src/domain/strategy/bias.py",
+          "state.py": "src/domain/strategy/state.py"
+        },
+        "timeframe": {
+          "timeframe.py": "src/domain/timeframe/timeframe.py"
+        }
+      },
+      "execution": {
+        "executor.py": "src/execution/executor.py",
+        "models.py": "src/execution/models.py",
+        "ports.py": "src/execution/ports.py",
+        "risk.py": "src/execution/risk.py",
+        "sizing.py": "src/execution/sizing.py",
+        "policy": {
+          "evaluator.py": "src/execution/policy/evaluator.py",
+          "force_close.py": "src/execution/policy/force_close.py",
+          "models.py": "src/execution/policy/models.py",
+          "session.py": "src/execution/policy/session.py"
+        }
+      },
+      "infrastructure": {
+        "adapters": {
+          "broker": {
+            "base.py": "src/infrastructure/adapters/broker/base.py",
+            "prod_broker.py": "src/infrastructure/adapters/broker/prod_broker.py",
+            "test_broker.py": "src/infrastructure/adapters/broker/test_broker.py"
+          }
+        },
+        "config": {
+          "errors.py": "src/infrastructure/config/errors.py",
+          "loader.py": "src/infrastructure/config/loader.py",
+          "schema.py": "src/infrastructure/config/schema.py"
+        },
+        "logging": {
+          "logger.py": "src/infrastructure/logging/logger.py"
+        },
+        "persistence": {
+          "state_store.py": "src/infrastructure/persistence/state_store.py"
+        }
+      },
+      "common": {
+        "decimal.py": "src/common/decimal.py"
+      },
+      "data": {
+        "sample_prices.csv": "src/data/sample_prices.csv"
+      }
+    },
+    "docs": {
+      "00_overview": {
+        "mis_algo_trading_final_folder_structure_sw_aligned.md": "docs/00_overview/mis_algo_trading_final_folder_structure_sw_aligned.md"
+      },
+      "02_architecture": {
+        "mis_algo_trading_software_architecture_specfication_sw_ad.md": "docs/02_architecture/mis_algo_trading_software_architecture_specfication_sw_ad.md",
+        "mis_algo_trading_software_architecture_rev_b_srs_traceability_aligned.md": "docs/02_architecture/mis_algo_trading_software_architecture_rev_b_srs_traceability_aligned.md"
+      },
+      "03_design": {
+        "mis_algo_trading_detailed_software_design_dsd.md": "docs/03_design/mis_algo_trading_detailed_software_design_dsd.md"
+      },
+      "09_reviews_audit": {
+        "phase_14_Corrective_Action_Log.md": "docs/09_reviews_audit/phase_14_Corrective_Action_Log.md"
+      }
+    }
+  }
+}
