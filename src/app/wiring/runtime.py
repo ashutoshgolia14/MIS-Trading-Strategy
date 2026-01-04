@@ -1,38 +1,50 @@
+from datetime import time
 from datetime import datetime
-from execution.executor import TradeExecutor
-from execution.risk import RiskManager
-from execution.sizing import PositionSizer
-from infrastructure.adapters.broker.test_broker import TestBroker
+
+from domain.strategy.context import StrategyContext
 from app.wiring.pipeline import Pipeline
 
-def run_once():
-    executor = TradeExecutor(
-        broker=TestBroker(),
+from execution.trading_engine import TradingEngine
+from execution.executor import ExecutionManager
+from execution.policy.session import MarketSessionPolicy
+from execution.risk import RiskManager
+from execution.sizing import PositionSizer
+
+from infrastructure.adapters.broker.prod_broker import ProdBroker
+
+
+def run_runtime(price_stream, brick_size: int):
+
+    pipeline = Pipeline(brick_size=brick_size)
+
+    trading_engine = TradingEngine(
+        policy=MarketSessionPolicy(
+            entry_start=time(9, 15),
+            entry_end=time(11, 00),
+            force_close=time(15, 30),
+        ),
         risk=RiskManager(max_qty=5),
         sizer=PositionSizer(fixed_qty=1),
+        executor=ExecutionManager(ProdBroker()),
     )
 
-    pipeline = Pipeline(brick_size=10, executor=executor)
-
-    dummy_indicator = {
-        "ema20": 110,
-        "ema20_prev": 100,
-        "macd_hist": 1,
-        "macd_hist_prev": 0,
-        "rsi": 60,
-        "supertrend_dir": "up",
-    }
-
-    prices = [100, 105, 111, 120]
-    for p in prices:
-        result = pipeline.process_tick(
-            price=p,
+    for price in price_stream:
+        strategy_context = StrategyContext(
             ts=datetime.now(),
-            indicator_data=dummy_indicator,
-            symbol="TEST",
+            renko_brick=None,
+            indicators_tf1=None,
+            indicators_tf2=None,
+            indicators_tf3=None,
+            indicators_tf4=None,
         )
-        if result:
-            print(result)
 
-if __name__ == "__main__":
-    run_once()
+        trading_context = pipeline.process_tick(
+            context=strategy_context,
+            price=price,
+            symbol="NIFTY"
+        )
+
+        if trading_context is None:
+            continue
+
+        trading_engine.evaluate_and_execute(trading_context)

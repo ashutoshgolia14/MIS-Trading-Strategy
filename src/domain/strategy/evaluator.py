@@ -4,8 +4,12 @@ from domain.strategy.state import next_state
 from domain.strategy.models import StrategyDecision, StrategySnapshot
 
 def evaluate_strategy(snapshot: StrategySnapshot, context) -> StrategySnapshot:
+
+    if snapshot is None:
+        snapshot = StrategySnapshot.bootstrap(context)
+
     bias = compute_bias(context.indicators_tf1, context.indicators_tf2)
-    flags = derive_flags(context.indicators_tf4)
+    flags = derive_flags(snapshot)
     new_state = next_state(snapshot.state, bias, flags)
 
     decision = None
@@ -22,7 +26,13 @@ def evaluate_strategy(snapshot: StrategySnapshot, context) -> StrategySnapshot:
             )
 
     return StrategySnapshot(
-        state=new_state,
+        ema20=snapshot.ema20,
+        ema20_prev=snapshot.ema20_prev,
+        macd_hist=snapshot.macd_hist,
+        macd_hist_prev=snapshot.macd_hist_prev,
+        rsi=snapshot.rsi,
+        supertrend_dir=snapshot.supertrend_dir,
         bias=bias,
+        state=new_state,
         last_decision=decision,
     )

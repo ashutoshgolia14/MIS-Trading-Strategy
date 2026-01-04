@@ -1,28 +1,27 @@
-"""
-Entry point for running the application as:
-    python -m src
+import argparse
 
-This file intentionally avoids changing existing import paths by
-exposing the 'src' directory as a top-level import root.
-"""
+from app.wiring.runtime import run_runtime
+from app.backtest.runner import run_backtest
 
-import sys
-from pathlib import Path
-
-def _expose_src_on_path():
-    # Ensure <project_root>/src is on sys.path so imports like
-    # 'from app...' continue to work unchanged.
-    this_file = Path(__file__).resolve()
-    src_dir = this_file.parent
-    if str(src_dir) not in sys.path:
-        sys.path.insert(0, str(src_dir))
 
 def main():
-    _expose_src_on_path()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--mode", choices=["live", "backtest"], required=True)
 
-    # Import here after sys.path adjustment
-    from app.bootstrap import bootstrap
-    bootstrap()
+    args = parser.parse_args()
+
+    if args.mode == "live":
+        run_runtime(
+            price_stream=[100, 105, 111, 120],
+            brick_size=10
+        )
+
+    elif args.mode == "backtest":
+        run_backtest(
+            csv_path="data/sample_prices.csv",
+            brick_size=10
+        )
+
 
 if __name__ == "__main__":
     main()
