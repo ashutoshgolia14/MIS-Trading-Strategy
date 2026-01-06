@@ -51,6 +51,7 @@
         "ports.py": "src/execution/ports.py",
         "risk.py": "src/execution/risk.py",
         "sizing.py": "src/execution/sizing.py",
+        "trading_engine.py": "src/execution/trading_engine.py",
         "policy": {
           "evaluator.py": "src/execution/policy/evaluator.py",
           "force_close.py": "src/execution/policy/force_close.py",
