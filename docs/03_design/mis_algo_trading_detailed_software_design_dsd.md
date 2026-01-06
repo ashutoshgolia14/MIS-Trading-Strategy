@@ -59,8 +59,8 @@ On any critical failure, trading halts and the system enters a safe state.
 - Applies deterministic fallback pricing
 
 ### 3.3 Symbol Runtime
-- Maintains per-symbol execution state
-- Serializes decision flow
+- Delegates execution authority and policy evaluation to TradingEngine
+- Does not enforce policy checks nor sequence execution lifecycle
 
 ### 3.4 Scheduler (Time Governance)
 - Enforces entry window
@@ -85,6 +85,17 @@ It centralizes:
 - Apply execution policies deterministically
 - Maintain execution lifecycle state
 - Decide whether and when execution may occur
+
+**Additional authoritative behaviors**
+- Enforce policy order in strict sequence:
+  1. Entry window policy (Scheduler)
+  2. Risk eligibility and margin constraints
+  3. Position sizing
+  4. Daily equity limits
+  5. Force-close override
+- Reject execution intent outright when policy fails
+- Guarantee no execution invocation unless all policies pass
+- Record execution decisions and audit trails before invocation
 
 **Explicit Non-Responsibilities**
 - Strategy evaluation
@@ -116,6 +127,10 @@ It centralizes:
 Market Data → Renko Engine → Strategy Core → Symbol Runtime → TradingEngine → Scheduler → Risk Management → Execution Manager → Broker
 
 Each step is gated; rejection at any stage terminates the flow.
+
+**Notes**
+- Policy enforcement (Scheduler, Risk, Equity, Force-Close) is coordinated strictly within TradingEngine before invoking Execution Manager.
+- Scheduler and Risk modules provide consultation only; they do not control execution sequencing on their own.
 
 ---
 

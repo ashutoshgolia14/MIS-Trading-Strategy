@@ -88,16 +88,16 @@ The software is structured into the following logical layers:
 ---
 
 #### 3.3.1 Application Pipeline
-The Application Pipeline is a conceptual orchestration model that is executed at runtime by the per-symbol Symbol Runtime component.
+The Application Pipeline is responsible only for:
+- Assembling strategy context from market data and runtime state
+- Routing events between system components
+- Forwarding strategy intent to the TradingEngine
 
-**Responsibilities**
-- Event routing
-- Context assembly
-
-**Explicit Non-Responsibilities**
-- Execution control
-- Policy enforcement
-- Position lifecycle management
+The Application Pipeline MUST NOT:
+- Control execution sequencing
+- Enforce execution policies
+- Decide entry or exit timing
+- Invoke execution or broker components directly
 
 ---
 
@@ -113,17 +113,34 @@ The Application Pipeline is a conceptual orchestration model that is executed at
 
 ---
 
-### 3.6 TradingEngine (Execution Control Layer)
+### 3.6 TradingEngine – Execution Lifecycle Authority
+
+The TradingEngine is the single authoritative owner of the trading execution lifecycle.
+It is responsible for deterministic sequencing and enforcement of all execution-related
+policies.
 
 **Responsibilities**
-- Own execution lifecycle (ENTER / HOLD / EXIT)
-- Enforce policy evaluation ordering
-- Invoke execution services
+- Own the full execution lifecycle (entry, hold, exit, force-close, failure handling)
+- Enforce execution policy order in a deterministic manner
+- Act as the sole invoker of the Execution Manager and Broker Adapters
 
-**Non-Responsibilities**
-- Strategy evaluation
-- Indicator computation
-- Routing or wiring
+**Additional authoritative responsibilities**
+- Coordinate and enforce all execution-related policies in the exact order:
+  1. Scheduler (intraday entry window)
+  2. Risk eligibility
+  3. Position sizing
+  4. Margin/equity constraint validation
+  5. End-of-day force-close override
+- Maintain execution lifecycle state per symbol with no external override
+- Act as the only component that transitions position lifecycle phases
+- Reject or defer execution intents when constraints are not met
+
+**Explicit Non-Responsibilities**
+ - Strategy evaluation
+ - Indicator computation
+ - Routing or wiring
+
+---
 
 ### 3.7 Execution Manager
 
@@ -193,9 +210,9 @@ Interfaces describe responsibility boundaries and interaction intent only.
 | Market Data Adapter | Renko Engine | Event Feed | Provide normalized price inputs |
 | Renko Engine | Strategy Core | Domain Event | Emit completed Renko brick events |
 | Strategy Core | Symbol Runtime | Intent Handoff | Provide evaluated trade intent |
-| Symbol Runtime | TradingEngine | Context Handoff | Transfer evaluated strategy context |
-| TradingEngine | Scheduler | Policy Consultation | Validate timing constraints |
-| TradingEngine | Risk Management Service | Policy Consultation | Validate sizing and risk limits |
+| Symbol Runtime | TradingEngine | Context Handoff | Transfer symbol-scoped context |
+| TradingEngine | Scheduler | Policy Coordination | Evaluate timing constraints first |
+| TradingEngine | Risk Management Service | Policy Coordination | Evaluate risk & sizing |
 | TradingEngine | Execution Manager | Command Invocation | Submit authorized execution request |
 | Execution Manager | Broker Adapter | External Command | Submit broker order |
 | Persistence Layer | Stateful Components | State Persistence | Persist durable system state |
@@ -222,8 +239,9 @@ and SHALL be subject to identical architectural constraints.
 - No broker interaction outside Execution Manager
 - Per-symbol runtime isolation is mandatory
 - All external interactions occur via adapters
-- Only TradingEngine may invoke Execution Manager
-- Execution policies SHALL NOT be enforced outside TradingEngine
+- TradingEngine MUST enforce policy order deterministically before any execution 
+- request is submitted to Execution Manager
+- Pipeline and Runtime MUST NOT perform any policy checks or policy enforcement
 - Scheduler and Risk Management influence execution authorization but do not directly invoke execution.
 
 
