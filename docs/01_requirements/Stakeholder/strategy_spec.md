@@ -1,46 +1,65 @@
 # Stakeholder Requirement – Strategy Spec
 
 ## Strategy Summary
+**STK-STR-FUNC-001**
 Multi-timeframe trend-following Renko system using:
-- Heikin Ashi directional bias, 
-- momentum filters (MACD, RSI), and 
-- Supertrend-based entry and exit validation. 
-Risk-based Quantity ensures consistent exposure. 
+- Heikin Ashi directional bias,
+- momentum filters (MACD, RSI), and
+- Supertrend-based entry and exit validation.
+
+**STK-STR-FUNC-002**
+Risk-based Quantity ensures consistent exposure.
+
+**STK-STR-FUNC-003**
 All logic is evaluated only on the creation of a new Renko bar.
+
+**STK-STR-FUNC-004**
 This strategy will be used to trade MIS stocks available for trading via broker Dhan (5x times leverage).
+
+**STK-STR-FUNC-005**
 UI interface will be required for control and analysis.
-Trading logic is based on inputs from multiple charts. 
+
+**STK-STR-FUNC-006**
+Trading logic is based on inputs from multiple charts.
+
+**STK-STR-FUNC-007**
 - Chart 1 (TF1): Heikin Ashi Daily (adjustable)
 - Chart 2 (TF2): Heikin Ashi 1 Hour (adjustable)
 - Chart 3 (TF3): Heikin Ashi 15 min (adjustable)
 - Execution Chart (TF4): Renko chart (calculated by bot, refer notes section)
 
 ### Directional Bias – Chart 1 (TF1 - HA Daily)
+**STK-STR-FUNC-008**
 1. If HA Close > HA Open, RSI > 60, Current RSI > Previous RSI   → Bias is BUY
 2. If HA Close < HA Open, RSI < 40, Current RSI < Previous RSI   → Bias is SELL
 3. If HA Close = HA Open → treat as no bias / skip entries.
 
 ### Chart 2 (TF2 - HA 1H) Indicators
+**STK-STR-FUNC-009**
 1. 20-Period EMA
 2. 9-Period EMA of the 20 EMA (source = 20 EMA)
 3. RSI (14) with levels 60 and 40
 4. MACD Histogram
-
+   
 ### Chart 3 (TF3 - HA 15 mins) Indicator
+**STK-STR-FUNC-010**
 MACD Histogram
 ATR (14) and 9 EMA of ATR (14)
 
 ### Chart 4 (TF4 - Renko Execution Chart) Indicators
+**STK-STR-FUNC-011**
 1. 20 EMA
 2. 9 EMA of the 20 EMA (source = 20 EMA)
 3. MACD Histogram
 4. Supertrend (Period = 10, Multiplier = 3)
 
 ### BUY Entry Condition
+**STK-STR-FUNC-012**
 - Evaluated only when a new Renko bar is created. 
 - Proceed only if TF1 bias is BUY. 
 - All of the following must be true:
 #### TF4 (Renko Execution) - Entry Conditions
+**STK-STR-FUNC-013**
 - Proceed only if TF1 bias is BUY. 
 - All of the following must be true before triggering:
   1. EMA condition: either 
@@ -66,15 +85,18 @@ ATR (14) and 9 EMA of ATR (14)
   5. Only after both flags are true, and TF2/TF3 momentum filters hold, trigger BUY on the next Renko bar.
 
 #### TF3 and TF2 - Momentum Filter
+**STK-STR-FUNC-014**
 - The current MACD Histogram value must be greater than the previous value on either of TF2 or TF3.
 
 #### TF3 - Volatility filter
+**STK-STR-FUNC-015**
 Pass volatility filter if either:
 - ATR rising for 2 consecutive bars (ATR_t > ATR_t-1 and ATR_t-1 > ATR_t-2), OR
 - ATR_t / ATR_EMA >= 1.05 (i.e. 5%) and ATR_t / ATR_t-1 >= 1.02 (i.e. 2%). (Percent adjustable)
   - ATR EMA is 9 period EMA of current ATR which is 14 period
 
 #### TF2 (HA 1H) - Trend + Momentum Confirmation
+**STK-STR-FUNC-016**
 - 20 EMA > 9 EMA (or crosses from ≤ to >)
 - HA Close > HA Open 
 - RSI > 60 
@@ -82,6 +104,7 @@ Pass volatility filter if either:
 
 ## Trade Setup
 ### BUY (At Entry)
+**STK-STR-FUNC-017**
 When a BUY trade is executed:
 - entryPrice = Renko close price at BUY entry 
 - refClose = Close price of the lowest bearish Renko brick (Close < Open) during the Supertrend downtrend phase immediately before the Supertrend flipped to uptrend 
@@ -89,6 +112,7 @@ When a BUY trade is executed:
 - priceThreshold = refClose - renkoBrickSize (used for price-based exit)
 
 #### Position sizing
+**STK-STR-FUNC-018**
 1. Risk Control 
    - Risk ≤ 1% of total equity per trade (adjustable). 
 2. Margin Cap 
@@ -97,6 +121,7 @@ When a BUY trade is executed:
    - Max Trade Value = min ((Equity X Margin Cap/Margin requirement), x% of Equity)
 
 ### BUY Trade Exit Logic (Renko + Supertrend)
+**STK-STR-FUNC-019**
 #### Price-Based Exit (Each Renko Bar)
 On every new Renko brick:
 - If currentRenkoClose <= (refClose - renkoBrickSize) → Exit BUY trade immediately
@@ -132,6 +157,7 @@ elif prevSupertrend == 'up' and currentSupertrend == 'down':
 ```
 
 #### Reset After Exit
+**STK-STR-FUNC-020**
 1. After closing the BUY trade:
    - Reset:
      - entryPrice 
@@ -139,12 +165,8 @@ elif prevSupertrend == 'up' and currentSupertrend == 'down':
      - Quantity 
      - Supertrend state trackers (e.g. prevSupertrendState)
 
-
-
-
-
-
 ### SELL Entry Condition - Evaluated only when a new Renko bar is created
+**STK-STR-FUNC-021**
 Proceed only if TF1 bias is SELL. All of the following must be true:
 
 #### TF4 (Renko Execution) - Entry Conditions
@@ -168,7 +190,6 @@ Proceed only if TF1 bias is SELL. All of the following must be true before trigg
        : Else → False
         
      - After the flip, MACD state no longer matters.
-
 
 3. Order-independence:
    - The trade should trigger only once both `emaAlignedSell` and `supertrendReadySell` are true.
@@ -201,6 +222,7 @@ Pass volatility filter if either:
 4. Current RSI < Previous RSI
 
 ## Trade Setup: SELL (At Entry)
+**STK-STR-FUNC-022**
 When a SELL trade is executed:
 - entryPrice = Renko close price at SELL entry 
 - refClose = Close price of the highest bullish Renko brick (Close > Open) during the Supertrend uptrend phase immediately before the Supertrend flipped to downtrend 
@@ -208,6 +230,7 @@ When a SELL trade is executed:
 - priceThreshold = refClose + renkoBrickSize (used for price-based exit)
 
 ### Position sizing
+**STK-STR-FUNC-023**
 1. Risk Control 
    - Risk ≤ 1% of total equity per trade (adjustable). 
 2. Margin Cap 
@@ -218,11 +241,13 @@ When a SELL trade is executed:
 
 ### SELL Trade Exit Logic (Renko + Supertrend)
 #### Price-Based Exit (Each Renko Bar)
+**STK-STR-FUNC-024**
 On every new Renko brick:
 - If currentRenkoClose >= (refClose + renkoBrickSize) → Exit SELL trade immediately.
 <mark>This indicates price moved at least one Renko brick above the last bullish reference close - signalling loss beyond tolerance</mark>.
 
 #### Supertrend Flip Exit (Conditional)
+**STK-STR-FUNC-025**
 - Continuously monitor the Supertrend direction.
 - When Supertrend flips from downtrend to uptrend:
   - If `currentRenkoClose < entryPrice` (i.e., the SELL trade is in profit) → Exit the trade 
@@ -233,6 +258,7 @@ On every new Renko brick:
     - A Supertrend flip occurs while in profit
 
 #### Order of Evaluation (Per Renko Bar)
+**STK-STR-FUNC-026**
 1. Price Check: 
    - If renkoClose >= (refClose + renkoBrickSize) → exit SELL 
 2. Supertrend Flip Check:
@@ -253,6 +279,7 @@ elif prevSupertrend == 'down' and currentSupertrend == 'up':
 ```
 
 #### Reset After Exit
+**STK-STR-FUNC-027**
 After closing the SELL trade Reset:
 - entryPrice 
 - refClose 
@@ -261,7 +288,7 @@ After closing the SELL trade Reset:
 
 
 ## Notes
-
+**STK-STR-FUNC-028**
 1. Print a log of action taken by bot when 
    - executing a trade, 
    - exiting a trade and 
@@ -318,17 +345,20 @@ ________________________________________
 
 
 # Timing Requirement
+**STK-STR-FUNC-029**
 - The Renko brick size calculation and Renko chart generation process must run outside market hours.
 - This routine should be executed once per week, before the first trading session of the week.
 - By market open, the bot must already have the updated Renko data (with latest brick sizes) ready for all eligible stocks.
 
 ## Other Timing Requirements
+**STK-STR-FUNC-030**
 - Entry Window: New trades may only be executed between 09:30 AM IST and 11:00 AM IST.
 - No Late Entries: After 11:00 AM IST, no new trades should be opened, even if valid signals appear.
 - Exit Logic: All trades must follow the defined exit rules (price-based exit and Supertrend flip exit).
 - End-of-Day Close: Any trade still open at 03:15 PM IST must be force-closed at market price, regardless of signals.
 
 ## Position Sizing and Equity Handling
+**STK-STR-FUNC-031**
 - Equity Input (via UI): The user can set/update the equity value once daily before market open.
 - This equity value will be used for all position sizing calculations for that day.
 - Position size remains static for the trading day, regardless of intraday PnL.

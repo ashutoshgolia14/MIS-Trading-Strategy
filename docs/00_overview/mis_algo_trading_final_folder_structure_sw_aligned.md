@@ -104,19 +104,20 @@ src/
     └── sample_prices.csv
 ```
 
-Architectural Intent by Layer
-Layer	Responsibility
-app/	Application orchestration and runtime wiring
-domain/	Pure business and trading logic
-execution/	Order execution, risk, sizing, policies
-infrastructure/	External systems, IO, brokers, config
-common/	Shared utilities
-data/	Runtime input data
+### Architectural Intent by Layer
+|Layer | Responsibility |
+|------|----------------|
+|app/ | Application orchestration and runtime wiring |
+|domain/ | Pure business and trading logic |
+|execution/ | Order execution, risk, sizing, policies |
+|infrastructure/ | External systems, IO, brokers, config |
+|common/ | Shared utilities |
+|data/ | Runtime input data |
 
-Change Control
-Any modification to this structure must:
-- Be proposed in a future phase
-- Be documented in phase history
-- Preserve backward compatibility unless explicitly approved
+### Change Control
+Changes to this structure **MUST**:
+- be approved via a documented Phase Change
+- include a change rationale, date, and scope impact
+- update this file and the phase history artifact
 
 ---
