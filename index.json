@@ -4,7 +4,8 @@
   "base_raw_url": "https://raw.githubusercontent.com/ashutoshgolia14/MIS-Trading-Strategy/main",
   "files": {
     "root": [
-      "README.md"
+      "README.md",
+      "index.json"
     ],
     "src": {
       "__init__.py": "src/__init__.py",
@@ -23,6 +24,12 @@
           "pipeline.py": "src/app/wiring/pipeline.py",
           "runtime.py": "src/app/wiring/runtime.py"
         }
+      },
+      "common": {
+        "decimal.py": "src/common/decimal.py"
+      },
+      "data": {
+        "sample_prices.csv": "src/data/sample_prices.csv"
       },
       "domain": {
         "indicators": {
@@ -78,28 +85,55 @@
         "persistence": {
           "state_store.py": "src/infrastructure/persistence/state_store.py"
         }
-      },
-      "common": {
-        "decimal.py": "src/common/decimal.py"
-      },
-      "data": {
-        "sample_prices.csv": "src/data/sample_prices.csv"
       }
     },
     "docs": {
       "00_overview": {
-        "mis_algo_trading_final_folder_structure_sw_aligned.md": "docs/00_overview/mis_algo_trading_final_folder_structure_sw_aligned.md"
+        "mis_algo_trading_final_folder_structure_sw_aligned.md": "docs/00_overview/mis_algo_trading_final_folder_structure_sw_aligned.md",
+        "mis_algo_trading_consistency_addendum_v_3.md": "docs/00_overview/mis_algo_trading_consistency_addendum_v_3.md"
+      },
+      "01_requirements": {
+        "Stakeholder": {
+          "developer_spec.md": "docs/01_requirements/Stakeholder/developer_spec.md",
+          "strategy_spec.md": "docs/01_requirements/Stakeholder/strategy_spec.md"
+        },
+        "mis_algo_trading_software_requirements_specification_srs.md": "docs/01_requirements/mis_algo_trading_software_requirements_specification_srs.md",
+        "mis_algo_trading_system_requirements_specification_sy_rs.md": "docs/01_requirements/mis_algo_trading_system_requirements_specification_sy_rs.md",
+        "mis_trading_strategy_requirements_traceability_matrix_rtm.md": "docs/01_requirements/mis_trading_strategy_requirements_traceability_matrix_rtm.md"
       },
       "02_architecture": {
+        "adr_001_introduce_trading_engine_as_explicit_execution_owner.md": "docs/02_architecture/adr_001_introduce_trading_engine_as_explicit_execution_owner.md",
+        "sw_ad_amendment_adr_001_trading_engine_introduction.md": "docs/02_architecture/sw_ad_amendment_adr_001_trading_engine_introduction.md",
         "mis_algo_trading_software_architecture_specfication_sw_ad.md": "docs/02_architecture/mis_algo_trading_software_architecture_specfication_sw_ad.md",
-        "mis_algo_trading_software_architecture_rev_b_srs_traceability_aligned.md": "docs/02_architecture/mis_algo_trading_software_architecture_rev_b_srs_traceability_aligned.md"
+        "mis_algo_trading_system_architecture_specification_sy_ad.md": "docs/02_architecture/mis_algo_trading_system_architecture_specification_sy_ad.md"
       },
       "03_design": {
+        "dsd_amendment_adr_001_trading_engine_introduction.md": "docs/03_design/dsd_amendment_adr_001_trading_engine_introduction.md",
         "mis_algo_trading_detailed_software_design_dsd.md": "docs/03_design/mis_algo_trading_detailed_software_design_dsd.md"
+      },
+      "04_execution_logic": {},
+      "05_configuration": {},
+      "06_testing": {
+        "mis_algo_trading_unit_test_specification_uts.md": "docs/06_testing/mis_algo_trading_unit_test_specification_uts.md"
+      },
+      "07_operations": {},
+      "08_phase_history": {
+        "phase_11.md": "docs/08_phase_history/phase_11.md",
+        "mis_trading_strategy_phase_14_checkpoint.md": "docs/08_phase_history/mis_trading_strategy_phase_14_checkpoint.md",
+        "mis_trading_strategy_checkpoint_frozen_design.md": "docs/08_phase_history/mis_trading_strategy_checkpoint_frozen_design.md"
       },
       "09_reviews_audit": {
         "phase_14_Corrective_Action_Log.md": "docs/09_reviews_audit/phase_14_Corrective_Action_Log.md"
       }
+    },
+    "tests": {
+      "unit": {},
+      "integration": {},
+      "functional": {},
+      "system": {}
+    },
+    "config": {
+      "config.yaml": "config/config.yaml"
     }
   }
 }
