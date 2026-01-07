@@ -113,40 +113,10 @@ infrastructure/	External systems, IO, brokers, config
 common/	Shared utilities
 data/	Runtime input data
 
-Phase 11 Notes
-This structure was introduced in Phase 11
-
-Phase 11 changes were structural only
-
-No trading logic or behavioral changes were made
-
-Imports were preserved using an entry-point shim
-
-Details are recorded in:
-docs/08_phase_history/phase_11.md
-
 Change Control
 Any modification to this structure must:
-Be proposed in a future phase
-Be documented in phase history
-Preserve backward compatibility unless explicitly approved
+- Be proposed in a future phase
+- Be documented in phase history
+- Preserve backward compatibility unless explicitly approved
 
 ---
-
-## ✅ Final Verdict
-
-- ✔ Your idea of storing this doc under `docs/00_overview` is **correct**
-- ✔ The document **must be updated** to reflect the `src/` structure
-- ✔ The content above is **Phase-11 correct, complete, and future-safe**
-- ✔ Once updated, this becomes the **single authoritative structure reference**
-
----
-
-## Next step (simple)
-
-Please do one of the following:
-- **Replace the file with the updated content above and push**
-- **Tell me if you want a diff-style update instead**
-- **Ask me to align any other overview docs**
-
-You’ve done a solid job getting this project back into a clean, prof
